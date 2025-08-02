@@ -4,6 +4,7 @@ import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import { use } from "react";
 import Link from "next/link";
+import Image from "next/image";
 
 interface Outfit {
     id: number;
@@ -76,9 +77,11 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
 
                     {outfit.imageUrl && (
                         <div className="mb-6">
-                            <img
+                            <Image
                                 src={outfit.imageUrl}
                                 alt={outfit.name}
+                                width={800}
+                                height={600}
                                 className="w-full max-w-2xl rounded-lg shadow-md"
                             />
                         </div>
