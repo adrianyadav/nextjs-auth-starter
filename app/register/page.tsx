@@ -12,13 +12,36 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 export default function RegisterPage() {
   const router = useRouter();
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
 
   async function handleSubmit(event: React.FormEvent<HTMLFormElement>) {
     try {
       event.preventDefault();
+      setIsLoading(true);
+      setError(null);
+
       const formData = new FormData(event.currentTarget);
+      const { name, email, password } = Object.fromEntries(formData);
+
+      // First, create the user
+      const registerResponse = await fetch("/api/register", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({ name, email, password }),
+      });
+
+      if (!registerResponse.ok) {
+        const errorData = await registerResponse.json();
+        setError(errorData.error || "Registration failed");
+        return;
+      }
+
+      // Then, sign in the user
       const signInResult = await signIn("credentials", {
-        ...Object.fromEntries(formData),
+        email,
+        password,
         redirect: false,
       });
 
@@ -31,6 +54,8 @@ export default function RegisterPage() {
       router.refresh();
     } catch (error) {
       setError(error instanceof Error ? error.message : "Registration failed");
+    } finally {
+      setIsLoading(false);
     }
   }
 
@@ -80,8 +105,8 @@ export default function RegisterPage() {
               <div className="text-destructive text-sm text-center">{error}</div>
             )}
 
-            <Button type="submit" className="w-full">
-              Register
+            <Button type="submit" className="w-full" disabled={isLoading}>
+              {isLoading ? "Creating account..." : "Register"}
             </Button>
           </form>
           <div className="text-center mt-4">

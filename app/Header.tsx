@@ -26,11 +26,6 @@ export default function Header() {
                   My Outfits
                 </Link>
               </Button>
-              <Button asChild>
-                <Link href="/outfits/new">
-                  Save Outfit
-                </Link>
-              </Button>
               <div className="flex items-center space-x-4">
                 <div className="text-sm text-muted-foreground">
                   {session.user?.name && <div>{session.user.name}</div>}

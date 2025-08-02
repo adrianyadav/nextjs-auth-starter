@@ -26,7 +26,7 @@ export async function GET(request: NextRequest) {
                             name: true,
                         },
                     },
-                    items: true, // Include outfit items
+                    items: true, // Change from 'OutfitItem' to 'items'
                 },
             }),
             prisma.outfit.count({
@@ -101,7 +101,7 @@ export async function POST(request: NextRequest) {
                 isPrivate: isPrivate || false,
                 userId: user.id,
                 items: {
-                    create: items || [], // Create outfit items if provided
+                    create: items || [], // This should use 'items' now
                 },
             },
             include: {
@@ -110,7 +110,7 @@ export async function POST(request: NextRequest) {
                         name: true,
                     },
                 },
-                items: true, // Include created items
+                items: true, // Change from 'OutfitItem' to 'items'
             },
         });
 

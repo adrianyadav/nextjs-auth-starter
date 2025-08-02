@@ -40,7 +40,7 @@ export async function GET(request: NextRequest) {
                     createdAt: "desc",
                 },
                 include: {
-                    items: true,
+                    items: true, // This should now work after the migration
                 },
             }),
             prisma.outfit.count({
