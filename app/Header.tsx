@@ -16,11 +16,16 @@ export default function Header() {
         <div className="flex items-center space-x-4">
           <Button asChild variant="outline">
             <Link href="/outfits">
-              My Outfits
+              Browse Outfits
             </Link>
           </Button>
           {session ? (
             <>
+              <Button asChild variant="outline">
+                <Link href="/my-outfits">
+                  My Outfits
+                </Link>
+              </Button>
               <Button asChild>
                 <Link href="/outfits/new">
                   Save Outfit

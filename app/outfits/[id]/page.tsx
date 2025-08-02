@@ -9,16 +9,27 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
+interface OutfitItem {
+    id: number;
+    name: string;
+    category: string;
+    description?: string;
+    purchaseUrl?: string;
+}
+
 interface Outfit {
     id: number;
     name: string;
     description?: string;
     imageUrl?: string;
     tags: string[];
+    isPrivate: boolean;
+    shareSlug?: string;
     createdAt: string;
     user?: {
         name: string;
     };
+    items: OutfitItem[];
 }
 
 export default function OutfitPage({ params }: { params: Promise<{ id: string }> }) {
@@ -117,6 +128,41 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                                         <Badge key={index} variant="secondary">
                                             {tag}
                                         </Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+
+                        {outfit.items && outfit.items.length > 0 && (
+                            <div>
+                                <h2 className="text-xl font-semibold text-foreground mb-2">Items</h2>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    {outfit.items.map((item) => (
+                                        <Card key={item.id}>
+                                            <CardHeader className="pb-2">
+                                                <CardTitle className="text-lg">{item.name}</CardTitle>
+                                                <CardDescription className="capitalize">
+                                                    {item.category.toLowerCase()}
+                                                </CardDescription>
+                                            </CardHeader>
+                                            <CardContent>
+                                                {item.description && (
+                                                    <p className="text-sm text-muted-foreground mb-2">
+                                                        {item.description}
+                                                    </p>
+                                                )}
+                                                {item.purchaseUrl && (
+                                                    <a
+                                                        href={item.purchaseUrl}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="text-sm text-blue-600 hover:text-blue-800 underline"
+                                                    >
+                                                        View Purchase Link →
+                                                    </a>
+                                                )}
+                                            </CardContent>
+                                        </Card>
                                     ))}
                                 </div>
                             </div>

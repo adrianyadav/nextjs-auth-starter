@@ -12,6 +12,9 @@ export async function GET(request: NextRequest) {
 
         const [outfits, total] = await Promise.all([
             prisma.outfit.findMany({
+                where: {
+                    isPrivate: false, // Only show public outfits
+                },
                 skip,
                 take: limit,
                 orderBy: {
@@ -23,9 +26,14 @@ export async function GET(request: NextRequest) {
                             name: true,
                         },
                     },
+                    items: true, // Include outfit items
                 },
             }),
-            prisma.outfit.count(),
+            prisma.outfit.count({
+                where: {
+                    isPrivate: false, // Only count public outfits
+                },
+            }),
         ]);
 
         const totalPages = Math.ceil(total / limit);
@@ -64,7 +72,7 @@ export async function POST(request: NextRequest) {
         }
 
         const body = await request.json();
-        const { name, description, imageUrl, tags } = body;
+        const { name, description, imageUrl, tags, isPrivate, items } = body;
 
         if (!name) {
             return NextResponse.json(
@@ -90,7 +98,11 @@ export async function POST(request: NextRequest) {
                 description,
                 imageUrl,
                 tags: tags || [],
+                isPrivate: isPrivate || false,
                 userId: user.id,
+                items: {
+                    create: items || [], // Create outfit items if provided
+                },
             },
             include: {
                 user: {
@@ -98,6 +110,7 @@ export async function POST(request: NextRequest) {
                         name: true,
                     },
                 },
+                items: true, // Include created items
             },
         });
 

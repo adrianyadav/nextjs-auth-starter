@@ -4,7 +4,7 @@ import Link from "next/link";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 
 export default async function Home() {
@@ -34,7 +34,7 @@ export default async function Home() {
                     </Link>
                   </Button>
                   <Button asChild variant="outline" size="lg" className="text-lg px-8 py-4">
-                    <Link href="/outfits">
+                    <Link href="/my-outfits">
                       View My Outfits
                     </Link>
                   </Button>

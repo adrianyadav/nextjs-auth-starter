@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -22,13 +16,38 @@ model User {
 }
 
 model Outfit {
-  id          Int      @id @default(autoincrement())
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
   name        String
   description String?
   imageUrl    String?
-  tags        String[] // Array of tags like "casual", "formal", "summer", etc.
+  tags        String[]
   userId      String?
-  user        User?    @relation(fields: [userId], references: [id])
+  isPrivate   Boolean      @default(false)
+  shareSlug   String?      @unique
+  user        User?        @relation(fields: [userId], references: [id])
+  items       OutfitItem[]
+}
+
+model OutfitItem {
+  id          Int          @id @default(autoincrement())
+  createdAt   DateTime     @default(now())
+  updatedAt   DateTime     @updatedAt
+  name        String
+  category    ItemCategory
+  description String?
+  purchaseUrl String?
+  outfitId    Int
+  outfit      Outfit       @relation(fields: [outfitId], references: [id], onDelete: Cascade)
+}
+
+enum ItemCategory {
+  HEADWEAR
+  UPPERWEAR
+  LOWERWEAR
+  FOOTWEAR
+  ACCESSORIES
+  SOCKS
+  OTHER
 }
