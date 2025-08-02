@@ -3,6 +3,9 @@
 import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface Outfit {
     id: number;
@@ -52,38 +55,46 @@ function OutfitsList() {
         <>
             {isLoading ? (
                 <div className="flex items-center justify-center space-x-2 min-h-[200px]">
-                    <div className="w-6 h-6 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-gray-600">Loading...</p>
+                    <div className="w-6 h-6 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                    <p className="text-muted-foreground">Loading...</p>
                 </div>
             ) : (
                 <>
                     {outfits.length === 0 ? (
-                        <p className="text-gray-600">No outfits available.</p>
+                        <p className="text-muted-foreground">No outfits available.</p>
                     ) : (
                         <ul className="space-y-6 w-full max-w-4xl mx-auto">
                             {outfits.map((outfit) => (
-                                <li key={outfit.id} className="border p-6 rounded-lg shadow-md bg-white">
-                                    <Link href={`/outfits/${outfit.id}`} className="text-2xl font-semibold text-gray-900 hover:underline">
-                                        {outfit.name}
-                                    </Link>
-                                    <p className="text-sm text-gray-500">by {outfit.user?.name || "Anonymous"}</p>
-                                    <p className="text-xs text-gray-400">
-                                        {new Date(outfit.createdAt).toLocaleDateString("en-US", {
-                                            year: "numeric",
-                                            month: "long",
-                                            day: "numeric",
-                                        })}
-                                    </p>
+                                <Card key={outfit.id} className="shadow-md">
+                                    <CardHeader>
+                                        <CardTitle>
+                                            <Link href={`/outfits/${outfit.id}`} className="hover:underline">
+                                                {outfit.name}
+                                            </Link>
+                                        </CardTitle>
+                                        <CardDescription>
+                                            by {outfit.user?.name || "Anonymous"}
+                                        </CardDescription>
+                                        <p className="text-xs text-muted-foreground">
+                                            {new Date(outfit.createdAt).toLocaleDateString("en-US", {
+                                                year: "numeric",
+                                                month: "long",
+                                                day: "numeric",
+                                            })}
+                                        </p>
+                                    </CardHeader>
                                     {outfit.tags && outfit.tags.length > 0 && (
-                                        <div className="flex flex-wrap gap-2 mt-3">
-                                            {outfit.tags.map((tag, index) => (
-                                                <span key={index} className="bg-purple-100 text-purple-800 text-xs px-2 py-1 rounded-full">
-                                                    {tag}
-                                                </span>
-                                            ))}
-                                        </div>
+                                        <CardContent className="pt-0">
+                                            <div className="flex flex-wrap gap-2">
+                                                {outfit.tags.map((tag, index) => (
+                                                    <Badge key={index} variant="secondary">
+                                                        {tag}
+                                                    </Badge>
+                                                ))}
+                                            </div>
+                                        </CardContent>
                                     )}
-                                </li>
+                                </Card>
                             ))}
                         </ul>
                     )}
@@ -91,14 +102,18 @@ function OutfitsList() {
                     {/* Pagination Controls */}
                     <div className="flex justify-center space-x-4 mt-8">
                         {page > 1 && (
-                            <Link href={`/outfits?page=${page - 1}`}>
-                                <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Previous</button>
-                            </Link>
+                            <Button asChild variant="outline">
+                                <Link href={`/outfits?page=${page - 1}`}>
+                                    Previous
+                                </Link>
+                            </Button>
                         )}
                         {page < totalPages && (
-                            <Link href={`/outfits?page=${page + 1}`}>
-                                <button className="px-4 py-2 bg-gray-200 rounded hover:bg-gray-300">Next</button>
-                            </Link>
+                            <Button asChild variant="outline">
+                                <Link href={`/outfits?page=${page + 1}`}>
+                                    Next
+                                </Link>
+                            </Button>
                         )}
                     </div>
                 </>
@@ -109,12 +124,12 @@ function OutfitsList() {
 
 export default function OutfitsPage() {
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start p-8">
+        <div className="min-h-screen bg-background flex flex-col items-center justify-start p-8">
             <Suspense
                 fallback={
                     <div className="flex items-center justify-center min-h-screen">
-                        <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                        <p className="ml-3 text-gray-600">Loading page...</p>
+                        <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                        <p className="ml-3 text-muted-foreground">Loading page...</p>
                     </div>
                 }
             >

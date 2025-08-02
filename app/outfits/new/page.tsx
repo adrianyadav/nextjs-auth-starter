@@ -2,6 +2,11 @@
 
 import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 
 export default function NewOutfitPage() {
     const router = useRouter();
@@ -52,90 +57,83 @@ export default function NewOutfitPage() {
     };
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start p-8">
+        <div className="min-h-screen bg-background flex flex-col items-center justify-start p-8">
             <div className="w-full max-w-2xl">
-                <h1 className="text-3xl font-bold text-gray-900 mb-8">Save New Outfit</h1>
+                <CardHeader className="px-0">
+                    <CardTitle className="text-3xl">Save New Outfit</CardTitle>
+                </CardHeader>
 
-                <form onSubmit={handleSubmit} className="bg-white shadow-md rounded-lg p-6 space-y-6">
-                    <div>
-                        <label htmlFor="name" className="block text-sm font-medium text-gray-700 mb-2">
-                            Outfit Name *
-                        </label>
-                        <input
-                            type="text"
-                            id="name"
-                            name="name"
-                            required
-                            value={formData.name}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                            placeholder="Enter outfit name"
-                        />
-                    </div>
+                <Card>
+                    <CardContent className="p-6">
+                        <form onSubmit={handleSubmit} className="space-y-6">
+                            <div className="space-y-2">
+                                <Label htmlFor="name">Outfit Name *</Label>
+                                <Input
+                                    type="text"
+                                    id="name"
+                                    name="name"
+                                    required
+                                    value={formData.name}
+                                    onChange={handleChange}
+                                    placeholder="Enter outfit name"
+                                />
+                            </div>
 
-                    <div>
-                        <label htmlFor="description" className="block text-sm font-medium text-gray-700 mb-2">
-                            Description
-                        </label>
-                        <textarea
-                            id="description"
-                            name="description"
-                            value={formData.description}
-                            onChange={handleChange}
-                            rows={4}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                            placeholder="Describe your outfit..."
-                        />
-                    </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="description">Description</Label>
+                                <Textarea
+                                    id="description"
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    rows={4}
+                                    placeholder="Describe your outfit..."
+                                />
+                            </div>
 
-                    <div>
-                        <label htmlFor="imageUrl" className="block text-sm font-medium text-gray-700 mb-2">
-                            Image URL
-                        </label>
-                        <input
-                            type="url"
-                            id="imageUrl"
-                            name="imageUrl"
-                            value={formData.imageUrl}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                            placeholder="https://example.com/image.jpg"
-                        />
-                    </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="imageUrl">Image URL</Label>
+                                <Input
+                                    type="url"
+                                    id="imageUrl"
+                                    name="imageUrl"
+                                    value={formData.imageUrl}
+                                    onChange={handleChange}
+                                    placeholder="https://example.com/image.jpg"
+                                />
+                            </div>
 
-                    <div>
-                        <label htmlFor="tags" className="block text-sm font-medium text-gray-700 mb-2">
-                            Tags (comma-separated)
-                        </label>
-                        <input
-                            type="text"
-                            id="tags"
-                            name="tags"
-                            value={formData.tags}
-                            onChange={handleChange}
-                            className="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                            placeholder="casual, summer, formal"
-                        />
-                        <p className="text-sm text-gray-500 mt-1">Add tags to help organize your outfits</p>
-                    </div>
+                            <div className="space-y-2">
+                                <Label htmlFor="tags">Tags (comma-separated)</Label>
+                                <Input
+                                    type="text"
+                                    id="tags"
+                                    name="tags"
+                                    value={formData.tags}
+                                    onChange={handleChange}
+                                    placeholder="casual, summer, formal"
+                                />
+                                <CardDescription>Add tags to help organize your outfits</CardDescription>
+                            </div>
 
-                    <div className="flex justify-end space-x-4">
-                        <button
-                            type="button"
-                            onClick={() => router.back()}
-                            className="px-4 py-2 text-gray-700 bg-gray-200 rounded-md hover:bg-gray-300 transition-colors"
-                        >
-                            Cancel
-                        </button>
-                        <button
-                            type="submit"
-                            disabled={isLoading}
-                            className="px-4 py-2 bg-purple-500 text-white rounded-md hover:bg-purple-600 transition-colors disabled:opacity-50"
-                        >
-                            {isLoading ? "Saving..." : "Save Outfit"}
-                        </button>
-                    </div>
-                </form>
+                            <div className="flex justify-end space-x-4">
+                                <Button
+                                    type="button"
+                                    variant="outline"
+                                    onClick={() => router.back()}
+                                >
+                                    Cancel
+                                </Button>
+                                <Button
+                                    type="submit"
+                                    disabled={isLoading}
+                                >
+                                    {isLoading ? "Saving..." : "Save Outfit"}
+                                </Button>
+                            </div>
+                        </form>
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );

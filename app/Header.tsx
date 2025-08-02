@@ -2,48 +2,49 @@
 
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
+import { Button } from "@/components/ui/button";
 
 export default function Header() {
   const { data: session } = useSession();
 
   return (
-    <header className="w-full bg-white shadow-md py-4 px-8">
+    <header className="w-full bg-background border-b shadow-sm py-4 px-8">
       <nav className="flex justify-between items-center">
-        <Link href="/" className="text-xl font-bold text-gray-800 hover:text-purple-600 transition-colors">
+        <Link href="/" className="text-xl font-bold text-foreground hover:text-primary transition-colors">
           OutfitSave
         </Link>
         <div className="flex items-center space-x-4">
-          <Link
-            href="/outfits"
-            className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition"
-          >
-            My Outfits
-          </Link>
+          <Button asChild variant="outline">
+            <Link href="/outfits">
+              My Outfits
+            </Link>
+          </Button>
           {session ? (
             <>
-              <Link
-                href="/outfits/new"
-                className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition"
-              >
-                Save Outfit
-              </Link>
+              <Button asChild>
+                <Link href="/outfits/new">
+                  Save Outfit
+                </Link>
+              </Button>
               <div className="flex items-center space-x-4">
-                <div className="text-sm text-gray-500">
+                <div className="text-sm text-muted-foreground">
                   {session.user?.name && <div>{session.user.name}</div>}
                   <div>{session.user?.email}</div>
                 </div>
-                <button
+                <Button
                   onClick={() => signOut()}
-                  className="bg-red-500 text-white px-4 py-2 rounded-lg hover:bg-red-600 transition"
+                  variant="destructive"
                 >
                   Sign Out
-                </button>
+                </Button>
               </div>
             </>
           ) : (
-            <Link href="/login" className="bg-purple-500 text-white px-4 py-2 rounded-lg hover:bg-purple-600 transition">
-              Sign In
-            </Link>
+            <Button asChild>
+              <Link href="/login">
+                Sign In
+              </Link>
+            </Button>
           )}
         </div>
       </nav>

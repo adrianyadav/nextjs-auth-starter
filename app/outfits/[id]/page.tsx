@@ -5,6 +5,9 @@ import { useRouter } from "next/navigation";
 import { use } from "react";
 import Link from "next/link";
 import Image from "next/image";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Badge } from "@/components/ui/badge";
 
 interface Outfit {
     id: number;
@@ -46,78 +49,80 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
 
     if (isLoading) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <div className="w-10 h-10 border-4 border-purple-500 border-t-transparent rounded-full animate-spin"></div>
-                <p className="ml-3 text-gray-600">Loading outfit...</p>
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <p className="ml-3 text-muted-foreground">Loading outfit...</p>
             </div>
         );
     }
 
     if (!outfit) {
         return (
-            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
-                <p className="text-gray-600">Outfit not found.</p>
+            <div className="min-h-screen bg-background flex items-center justify-center">
+                <p className="text-muted-foreground">Outfit not found.</p>
             </div>
         );
     }
 
     return (
-        <div className="min-h-screen bg-gray-50 flex flex-col items-center justify-start p-8">
+        <div className="min-h-screen bg-background flex flex-col items-center justify-start p-8">
             <div className="w-full max-w-4xl">
-                <div className="bg-white shadow-md rounded-lg p-8">
-                    <div className="flex justify-between items-start mb-6">
-                        <h1 className="text-4xl font-bold text-gray-900">{outfit.name}</h1>
-                        <Link
-                            href="/outfits"
-                            className="px-4 py-2 bg-gray-200 text-gray-700 rounded-md hover:bg-gray-300 transition-colors"
-                        >
-                            Back to Outfits
-                        </Link>
-                    </div>
-
-                    {outfit.imageUrl && (
-                        <div className="mb-6">
-                            <Image
-                                src={outfit.imageUrl}
-                                alt={outfit.name}
-                                width={800}
-                                height={600}
-                                className="w-full max-w-2xl rounded-lg shadow-md"
-                            />
+                <Card>
+                    <CardHeader>
+                        <div className="flex justify-between items-start">
+                            <CardTitle className="text-4xl">{outfit.name}</CardTitle>
+                            <Button asChild variant="outline">
+                                <Link href="/outfits">
+                                    Back to Outfits
+                                </Link>
+                            </Button>
                         </div>
-                    )}
-
-                    <div className="mb-6">
-                        <p className="text-sm text-gray-500">by {outfit.user?.name || "Anonymous"}</p>
-                        <p className="text-xs text-gray-400">
-                            {new Date(outfit.createdAt).toLocaleDateString("en-US", {
-                                year: "numeric",
-                                month: "long",
-                                day: "numeric",
-                            })}
-                        </p>
-                    </div>
-
-                    {outfit.description && (
-                        <div className="mb-6">
-                            <h2 className="text-xl font-semibold text-gray-900 mb-2">Description</h2>
-                            <p className="text-gray-700 leading-relaxed">{outfit.description}</p>
-                        </div>
-                    )}
-
-                    {outfit.tags && outfit.tags.length > 0 && (
-                        <div>
-                            <h2 className="text-xl font-semibold text-gray-900 mb-2">Tags</h2>
-                            <div className="flex flex-wrap gap-2">
-                                {outfit.tags.map((tag, index) => (
-                                    <span key={index} className="bg-purple-100 text-purple-800 px-3 py-1 rounded-full text-sm">
-                                        {tag}
-                                    </span>
-                                ))}
+                    </CardHeader>
+                    <CardContent className="space-y-6">
+                        {outfit.imageUrl && (
+                            <div>
+                                <Image
+                                    src={outfit.imageUrl}
+                                    alt={outfit.name}
+                                    width={800}
+                                    height={600}
+                                    className="w-full max-w-2xl rounded-lg shadow-md"
+                                />
                             </div>
+                        )}
+
+                        <div>
+                            <CardDescription>by {outfit.user?.name || "Anonymous"}</CardDescription>
+                            <p className="text-xs text-muted-foreground">
+                                {new Date(outfit.createdAt).toLocaleDateString("en-US", {
+                                    year: "numeric",
+                                    month: "long",
+                                    day: "numeric",
+                                })}
+                            </p>
                         </div>
-                    )}
-                </div>
+
+                        {outfit.description && (
+                            <div>
+                                <h2 className="text-xl font-semibold text-foreground mb-2">Description</h2>
+                                <p className="text-muted-foreground leading-relaxed">{outfit.description}</p>
+                            </div>
+                        )}
+
+                        {outfit.tags && outfit.tags.length > 0 && (
+                            <div>
+                                <h2 className="text-xl font-semibold text-foreground mb-2">Tags</h2>
+                                <div className="flex flex-wrap gap-2">
+                                    {outfit.tags.map((tag, index) => (
+                                        <Badge key={index} variant="secondary">
+                                            {tag}
+                                        </Badge>
+                                    ))}
+                                </div>
+                            </div>
+                        )}
+                    </CardContent>
+                </Card>
             </div>
         </div>
     );
