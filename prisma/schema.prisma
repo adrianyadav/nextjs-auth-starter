@@ -14,20 +14,21 @@ datasource db {
 }
 
 model User {
-  id       String  @id @default(cuid())
+  id       String   @id @default(cuid())
   name     String?
-  email    String  @unique
+  email    String   @unique
   password String
-  posts    Post[]
+  outfits  Outfit[]
 }
 
-model Post {
-  id        Int      @id @default(autoincrement())
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-  title     String
-  content   String?
-  published Boolean  @default(false)
-  authorId  String?
-  author    User?    @relation(fields: [authorId], references: [id])
+model Outfit {
+  id          Int      @id @default(autoincrement())
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+  name        String
+  description String?
+  imageUrl    String?
+  tags        String[] // Array of tags like "casual", "formal", "summer", etc.
+  userId      String?
+  user        User?    @relation(fields: [userId], references: [id])
 }
