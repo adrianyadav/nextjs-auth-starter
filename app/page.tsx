@@ -7,11 +7,30 @@ import { Button } from "@/components/ui/button";
 import OutfitCard from "@/components/ui/outfit-card";
 import Footer from "@/components/ui/footer";
 
+// Define the outfit type
+interface Outfit {
+  id: number;
+  name: string;
+  description?: string;
+  imageUrl?: string;
+  tags: string[];
+  isPrivate: boolean;
+  shareSlug?: string;
+  createdAt: string;
+  items: Array<{
+    id: number;
+    name: string;
+    category: string;
+    description?: string;
+    purchaseUrl?: string;
+  }>;
+}
+
 export default async function Home() {
   const session = await getServerSession(authOptions);
 
   // Fetch some public outfits to showcase on the homepage
-  let showcaseOutfits = [];
+  let showcaseOutfits: Outfit[] = [];
   try {
     const outfitsResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/outfits?page=1&limit=6`, {
       cache: 'no-store'
@@ -140,7 +159,7 @@ export default async function Home() {
           {/* Masonry-style Grid */}
           <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
             {showcaseOutfits.length > 0 ? (
-              showcaseOutfits.map((outfit: any, index: number) => (
+              showcaseOutfits.map((outfit: Outfit, index: number) => (
                 <div key={outfit.id} className={`break-inside-avoid ${index % 2 === 0 ? 'lg:mt-0' : 'lg:mt-8'}`}>
                   <OutfitCard
                     outfit={{
