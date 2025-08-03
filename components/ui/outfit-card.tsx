@@ -10,7 +10,6 @@ import { Button } from "@/components/ui/button";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 import { AdminDeleteButton } from "@/components/ui/admin-delete-button";
 import { useAdmin } from "@/hooks/use-admin";
-import { useSession } from "next-auth/react";
 
 interface OutfitItem {
     id: number;
