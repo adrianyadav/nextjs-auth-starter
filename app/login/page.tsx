@@ -53,6 +53,7 @@ export default function LoginPage() {
                 type="email"
                 required
                 placeholder="Enter your email"
+                data-testid="email-input"
               />
             </div>
             <div className="space-y-2">
@@ -63,20 +64,21 @@ export default function LoginPage() {
                 type="password"
                 required
                 placeholder="Enter your password"
+                data-testid="password-input"
               />
             </div>
 
             {error && (
-              <div className="text-destructive text-sm text-center">{error}</div>
+              <div className="text-destructive text-sm text-center" data-testid="error-message">{error}</div>
             )}
 
-            <Button type="submit" className="w-full">
+            <Button type="submit" className="w-full" data-testid="submit-button">
               Sign in
             </Button>
           </form>
           <div className="text-center mt-4">
             <Button asChild variant="link">
-              <Link href="/register">
+              <Link href="/register" data-testid="register-link">
                 No account? Register.
               </Link>
             </Button>

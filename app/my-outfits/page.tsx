@@ -38,6 +38,7 @@ function MyOutfitsList() {
     const [totalPages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
     const [sharingOutfit, setSharingOutfit] = useState<number | null>(null);
+    const [deletingOutfit, setDeletingOutfit] = useState<number | null>(null);
 
     useEffect(() => {
         async function fetchMyOutfits() {
@@ -85,17 +86,46 @@ function MyOutfitsList() {
         }
     };
 
+    const handleDelete = async (outfitId: number) => {
+        if (deletingOutfit === outfitId) return;
+
+        setDeletingOutfit(outfitId);
+        try {
+            const response = await fetch(`/api/outfits/${outfitId}`, {
+                method: "DELETE",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response.ok) {
+                // Remove the outfit from the local state
+                setOutfits(prevOutfits => prevOutfits.filter(outfit => outfit.id !== outfitId));
+                // Ensure we stay on the my-outfits page
+                window.location.href = "/my-outfits";
+            } else {
+                const error = await response.json();
+                alert(error.error || "Failed to delete outfit");
+            }
+        } catch (error) {
+            console.error("Error deleting outfit:", error);
+        } finally {
+            setDeletingOutfit(null);
+        }
+    };
+
     return (
         <>
             {isLoading ? (
                 <div className="flex items-center justify-center space-x-2 min-h-[200px]">
-                    <div className="w-6 h-6 border-4 border-royal border-t-transparent rounded-full animate-spin"></div>
+                    <div data-testid="loading-spinner" className="w-6 h-6 border-4 border-royal border-t-transparent rounded-full animate-spin"></div>
                     <p className="text-muted-foreground">Loading...</p>
                 </div>
             ) : (
                 <>
                     {outfits.length === 0 ? (
-                        <div className="text-center space-y-6 py-12">
+                        <div className="text-center space-y-6 py-12" data-testid="no-outfits-message">
                             <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <TShirtIcon className="w-8 h-8 text-muted-foreground" />
                             </div>
@@ -104,7 +134,7 @@ function MyOutfitsList() {
                                 You haven&apos;t created any outfits yet. Start building your fashion collection!
                             </p>
                             <Button asChild className="bg-gradient-royal hover:bg-gradient-royal-light text-white transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg">
-                                <Link href="/outfits/new" className="flex items-center gap-2">
+                                <Link href="/outfits/new" className="flex items-center gap-2" data-testid="create-first-outfit-button">
                                     <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                                         <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
                                     </svg>
@@ -113,14 +143,16 @@ function MyOutfitsList() {
                             </Button>
                         </div>
                     ) : (
-                        <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8">
+                        <div className="columns-1 md:columns-2 lg:columns-3 gap-8 space-y-8" data-testid="outfits-grid">
                             {outfits.map((outfit, index) => (
                                 <div key={outfit.id} className={`break-inside-avoid ${index % 2 === 0 ? 'lg:mt-0' : 'lg:mt-8'}`}>
                                     <OutfitCard
                                         outfit={outfit}
                                         showActions={true}
                                         onShare={handleShare}
+                                        onDelete={handleDelete}
                                         sharingOutfit={sharingOutfit}
+                                        deletingOutfit={deletingOutfit}
                                     />
                                 </div>
                             ))}

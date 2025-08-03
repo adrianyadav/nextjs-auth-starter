@@ -1,4 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
+import { getServerSession } from "next-auth";
+import { authOptions } from "@/auth";
 import prisma from "@/lib/prisma";
 
 export async function GET(
@@ -35,5 +37,49 @@ export async function GET(
             { error: "Failed to fetch outfit" },
             { status: 500 }
         );
+    }
+}
+
+export async function DELETE(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        const session = await getServerSession(authOptions);
+
+        if (!session?.user?.email) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const { id } = await params;
+        const outfitId = parseInt(id);
+
+        if (isNaN(outfitId)) {
+            return NextResponse.json({ error: "Invalid outfit ID" }, { status: 400 });
+        }
+
+        // Check if the outfit exists and belongs to the current user
+        const outfit = await prisma.outfit.findFirst({
+            where: {
+                id: outfitId,
+                userId: session.user.id
+            }
+        });
+
+        if (!outfit) {
+            return NextResponse.json({ error: "Outfit not found or access denied" }, { status: 404 });
+        }
+
+        // Delete the outfit and all related data
+        await prisma.outfit.delete({
+            where: {
+                id: outfitId
+            }
+        });
+
+        return NextResponse.json({ message: "Outfit deleted successfully" });
+    } catch (error) {
+        console.error("Error deleting outfit:", error);
+        return NextResponse.json({ error: "Failed to delete outfit" }, { status: 500 });
     }
 }

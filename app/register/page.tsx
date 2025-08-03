@@ -78,6 +78,7 @@ export default function RegisterPage() {
                 type="text"
                 required
                 placeholder="Enter your full name"
+                data-testid="name-input"
               />
             </div>
             <div className="space-y-2">
@@ -88,6 +89,7 @@ export default function RegisterPage() {
                 type="email"
                 required
                 placeholder="Enter your email"
+                data-testid="email-input"
               />
             </div>
             <div className="space-y-2">
@@ -98,20 +100,21 @@ export default function RegisterPage() {
                 type="password"
                 required
                 placeholder="Enter your password"
+                data-testid="password-input"
               />
             </div>
 
             {error && (
-              <div className="text-destructive text-sm text-center">{error}</div>
+              <div className="text-destructive text-sm text-center" data-testid="error-message">{error}</div>
             )}
 
-            <Button type="submit" className="w-full" disabled={isLoading}>
+            <Button type="submit" className="w-full" disabled={isLoading} data-testid="submit-button">
               {isLoading ? "Creating account..." : "Register"}
             </Button>
           </form>
           <div className="text-center mt-4">
             <Button asChild variant="link">
-              <Link href="/login">
+              <Link href="/login" data-testid="login-link">
                 Already have an account? Sign in
               </Link>
             </Button>

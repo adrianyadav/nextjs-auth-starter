@@ -43,6 +43,7 @@ export default function Header() {
                   {session.user?.name && <div className="font-medium">{session.user.name}</div>}
                 </div>
                 <Button
+                  data-testid="logout-button"
                   onClick={() => signOut()}
                   variant="destructive"
                   className="bg-gradient-royal hover:bg-gradient-royal-light text-white transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg"
@@ -106,11 +107,12 @@ export default function Header() {
 
                 <div className="space-y-4">
                   {session.user?.name && (
-                    <div className="text-center py-2 px-3 bg-gray-50 rounded-md">
+                    <div className="text-center py-2 px-3 rounded-md">
                       <div className="font-medium text-sm">{session.user.name}</div>
                     </div>
                   )}
                   <Button
+                    data-testid="logout-button-mobile"
                     onClick={() => {
                       signOut();
                       closeMobileMenu();

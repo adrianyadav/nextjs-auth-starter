@@ -8,6 +8,7 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
+import ConfirmDialog from "@/components/ui/confirm-dialog";
 
 interface OutfitItem {
     id: number;
@@ -37,6 +38,10 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
     const { id } = use(params);
     const [outfit, setOutfit] = useState<Outfit | null>(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const [isDeleting, setIsDeleting] = useState(false);
+    const [isSaving, setIsSaving] = useState(false);
+    const [isOwned, setIsOwned] = useState(false);
 
     useEffect(() => {
         async function fetchOutfit() {
@@ -47,6 +52,13 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                 }
                 const data = await res.json();
                 setOutfit(data);
+
+                // Check if user owns this outfit
+                const sessionRes = await fetch('/api/auth/session');
+                if (sessionRes.ok) {
+                    const session = await sessionRes.json();
+                    setIsOwned(session.user?.id === data.userId);
+                }
             } catch (error) {
                 console.error("Error fetching outfit:", error);
                 router.push("/outfits");
@@ -58,10 +70,74 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
         fetchOutfit();
     }, [id, router]);
 
+    const handleDelete = async () => {
+        if (isDeleting || !outfit) return;
+
+        setIsDeleting(true);
+        try {
+            const response = await fetch(`/api/outfits/${outfit.id}`, {
+                method: "DELETE",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response.ok) {
+                // Redirect to my-outfits page after successful deletion
+                console.log("Deletion successful, redirecting to /my-outfits");
+                // Try multiple redirect methods
+                try {
+                    router.push("/my-outfits");
+                } catch (e) {
+                    console.log("Router failed, using window.location");
+                    window.location.href = "/my-outfits";
+                }
+            } else {
+                const error = await response.json();
+                console.error("Delete failed:", error);
+                alert(error.error || "Failed to delete outfit");
+            }
+        } catch (error) {
+            console.error("Error deleting outfit:", error);
+            alert("Failed to delete outfit");
+        } finally {
+            setIsDeleting(false);
+            setShowDeleteDialog(false);
+        }
+    };
+
+    const handleSaveOutfit = async () => {
+        if (isSaving || !outfit) return;
+
+        setIsSaving(true);
+        try {
+            const response = await fetch(`/api/outfits/${outfit.id}/save`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response.ok) {
+                router.push("/my-outfits");
+            } else {
+                const error = await response.json();
+                alert(error.error || "Failed to save outfit");
+            }
+        } catch (error) {
+            console.error("Error saving outfit:", error);
+            alert("Failed to save outfit");
+        } finally {
+            setIsSaving(false);
+        }
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
-                <div className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
+                <div data-testid="loading-spinner" className="w-10 h-10 border-4 border-primary border-t-transparent rounded-full animate-spin"></div>
                 <p className="ml-3 text-muted-foreground">Loading outfit...</p>
             </div>
         );
@@ -82,11 +158,35 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                     <CardHeader>
                         <div className="flex justify-between items-start">
                             <CardTitle className="text-4xl">{outfit.name}</CardTitle>
-                            <Button asChild variant="outline">
-                                <Link href="/outfits">
-                                    Back to Outfits
-                                </Link>
-                            </Button>
+                            <div className="flex gap-2">
+                                <Button asChild variant="outline">
+                                    <Link href="/my-outfits" data-testid="back-to-my-outfits">
+                                        Back to My Outfits
+                                    </Link>
+                                </Button>
+                                {isOwned ? (
+                                    <Button
+                                        data-testid="delete-outfit-button"
+                                        variant="destructive"
+                                        onClick={() => setShowDeleteDialog(true)}
+                                        disabled={isDeleting}
+                                    >
+                                        Delete Outfit
+                                    </Button>
+                                ) : (
+                                    !outfit.isPrivate && (
+                                        <Button
+                                            data-testid="save-to-my-outfits-button"
+                                            variant="default"
+                                            onClick={handleSaveOutfit}
+                                            disabled={isSaving}
+                                            className="bg-royal hover:bg-royal/90"
+                                        >
+                                            {isSaving ? "Saving..." : "Save to My Outfits"}
+                                        </Button>
+                                    )
+                                )}
+                            </div>
                         </div>
                     </CardHeader>
                     <CardContent className="space-y-6">
@@ -170,6 +270,16 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                     </CardContent>
                 </Card>
             </div>
+
+            <ConfirmDialog
+                title="Delete Outfit"
+                message={`Are you sure you want to delete "${outfit?.name}"? This action cannot be undone.`}
+                confirmText="Delete Outfit"
+                onConfirm={handleDelete}
+                isOpen={showDeleteDialog}
+                onClose={() => setShowDeleteDialog(false)}
+                isLoading={isDeleting}
+            />
         </div>
     );
 } 

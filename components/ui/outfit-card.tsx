@@ -1,8 +1,12 @@
+"use client";
+
 import Link from "next/link";
+import { useState } from "react";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Share2, Lock, Eye, Tag, Shirt } from "lucide-react";
+import { Share2, Lock, Eye, Tag, Shirt, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import ConfirmDialog from "@/components/ui/confirm-dialog";
 
 interface OutfitItem {
     id: number;
@@ -26,7 +30,9 @@ interface OutfitCardProps {
     };
     showActions?: boolean;
     onShare?: (outfitId: number) => void;
+    onDelete?: (outfitId: number) => void;
     sharingOutfit?: number | null;
+    deletingOutfit?: number | null;
     className?: string;
 }
 
@@ -34,11 +40,36 @@ export default function OutfitCard({
     outfit,
     showActions = true,
     onShare,
+    onDelete,
     sharingOutfit,
+    deletingOutfit,
     className = ""
 }: OutfitCardProps) {
+    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+
+    const handleDeleteClick = (e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        setShowDeleteDialog(true);
+    };
+
+    const handleConfirmDelete = async () => {
+        if (onDelete) {
+            await onDelete(outfit.id);
+            setShowDeleteDialog(false);
+        }
+    };
     return (
-        <Link href={`/outfits/${outfit.id}`} className="block">
+        <Link 
+            href={showDeleteDialog ? "#" : `/outfits/${outfit.id}`} 
+            className="block"
+            data-testid={`outfit-card-${outfit.id}`}
+            onClick={(e) => {
+                if (showDeleteDialog) {
+                    e.preventDefault();
+                }
+            }}
+        >
             <Card className={`group overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 transform hover:-translate-y-2 bg-gradient-to-br from-background to-muted/20 border-0 cursor-pointer ${className}`}>
                 {/* Image Section */}
                 <div className="aspect-square bg-gradient-to-br from-royal/10 to-royal/5 flex items-center justify-center relative overflow-hidden">
@@ -49,8 +80,7 @@ export default function OutfitCard({
                                 alt={outfit.name}
                                 className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
                             />
-                            {/* Gradient Overlay */}
-                            <div className="absolute inset-0 bg-gradient-to-t from-black/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
                         </>
                     ) : (
                         <div className="flex flex-col items-center justify-center text-royal/60 group-hover:text-royal/80 transition-colors duration-300">
@@ -63,14 +93,14 @@ export default function OutfitCard({
 
                     {/* Privacy Badge Overlay */}
                     {showActions && (
-                        <div className="absolute top-3 right-3">
+                        <div className="absolute top-3 right-3 z-10">
                             {outfit.isPrivate ? (
-                                <Badge variant="secondary" className="flex items-center gap-1 bg-background/90 backdrop-blur-sm border border-royal/20 shadow-lg group-hover:bg-royal group-hover:text-white transition-all duration-300 text-foreground">
+                                <Badge variant="secondary" className="flex items-center gap-1 bg-white/95 backdrop-blur-md border border-royal/30 shadow-xl group-hover:bg-royal/10 group-hover:border-royal/50 group-hover:shadow-2xl transition-all duration-300 text-foreground font-semibold">
                                     <Lock className="h-3 w-3" />
                                     Private
                                 </Badge>
                             ) : (
-                                <Badge variant="outline" className="flex items-center gap-1 bg-background/90 backdrop-blur-sm border-royal/30 shadow-lg group-hover:bg-royal group-hover:text-white group-hover:border-royal transition-all duration-300 text-foreground">
+                                <Badge variant="outline" className="flex items-center gap-1 bg-white/95 backdrop-blur-md border-royal/40 shadow-xl group-hover:bg-royal/10 group-hover:border-royal/50 group-hover:shadow-2xl transition-all duration-300 text-foreground font-semibold">
                                     <Eye className="h-3 w-3" />
                                     Public
                                 </Badge>
@@ -78,8 +108,7 @@ export default function OutfitCard({
                         </div>
                     )}
 
-                    {/* Hover Overlay */}
-                    <div className="absolute inset-0 bg-gradient-to-t from-royal/20 via-transparent to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"></div>
+
                 </div>
 
                 {/* Content Section */}
@@ -94,22 +123,40 @@ export default function OutfitCard({
                             </CardDescription>
                         </div>
 
-                        {/* Share Button */}
-                        {showActions && !outfit.isPrivate && onShare && (
-                            <Button
-                                variant="outline"
-                                size="sm"
-                                onClick={(e) => {
-                                    e.preventDefault();
-                                    e.stopPropagation();
-                                    onShare(outfit.id);
-                                }}
-                                disabled={sharingOutfit === outfit.id}
-                                className="ml-2 border-royal/30 text-royal hover:bg-royal hover:text-white transition-all duration-300 transform hover:scale-105"
-                            >
-                                <Share2 className="h-4 w-4 mr-2" />
-                                {sharingOutfit === outfit.id ? "Sharing..." : "Share"}
-                            </Button>
+                        {/* Action Buttons */}
+                        {showActions && (
+                            <div className="flex gap-2">
+                                {!outfit.isPrivate && onShare && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        data-testid={`share-button-${outfit.id}`}
+                                        onClick={(e) => {
+                                            e.preventDefault();
+                                            e.stopPropagation();
+                                            onShare(outfit.id);
+                                        }}
+                                        disabled={sharingOutfit === outfit.id}
+                                        className="border-royal/30 text-royal hover:bg-royal hover:text-white transition-all duration-300 transform hover:scale-105"
+                                    >
+                                        <Share2 className="h-4 w-4 mr-2" />
+                                        {sharingOutfit === outfit.id ? "Sharing..." : "Share"}
+                                    </Button>
+                                )}
+                                {onDelete && (
+                                    <Button
+                                        variant="outline"
+                                        size="sm"
+                                        data-testid={`delete-button-${outfit.id}`}
+                                        onClick={handleDeleteClick}
+                                        disabled={deletingOutfit === outfit.id}
+                                        className="border-destructive/30 text-destructive hover:bg-destructive hover:text-white transition-all duration-300 transform hover:scale-105"
+                                    >
+                                        <Trash2 className="h-4 w-4 mr-2" />
+                                        {deletingOutfit === outfit.id ? "Deleting..." : "Delete"}
+                                    </Button>
+                                )}
+                            </div>
                         )}
                     </div>
 
@@ -131,7 +178,7 @@ export default function OutfitCard({
                                 <Badge
                                     key={index}
                                     variant="secondary"
-                                    className="bg-royal/10 text-royal border border-royal/20 hover:bg-royal hover:text-royal-foreground transition-all duration-300 transform hover:scale-105"
+                                    className="bg-white/90 text-royal border border-royal/30 hover:bg-royal/20 hover:border-royal/50 transition-all duration-300 transform hover:scale-105 font-medium shadow-sm"
                                 >
                                     {tag}
                                 </Badge>
@@ -164,6 +211,16 @@ export default function OutfitCard({
                     )}
                 </CardContent>
             </Card>
+
+            <ConfirmDialog
+                title="Delete Outfit"
+                message={`Are you sure you want to delete "${outfit.name}"? This action cannot be undone.`}
+                confirmText="Delete Outfit"
+                onConfirm={handleConfirmDelete}
+                isOpen={showDeleteDialog}
+                onClose={() => setShowDeleteDialog(false)}
+                isLoading={deletingOutfit === outfit.id}
+            />
         </Link>
     );
 } 
