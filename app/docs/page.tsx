@@ -1,6 +1,7 @@
 import { readFileSync } from 'fs';
 import { join } from 'path';
 import { notFound } from 'next/navigation';
+import Link from 'next/link';
 import MarkdownRenderer from './components/MarkdownRenderer';
 
 export default function DocsPage() {
@@ -10,7 +11,7 @@ export default function DocsPage() {
     }
 
     let content = '';
-    let title = 'README';
+    const title = 'README';
 
     try {
         const filePath = join(process.cwd(), 'docs', 'README.md');
@@ -33,42 +34,42 @@ export default function DocsPage() {
                 <div className="mb-6 p-4 bg-white rounded-lg shadow-sm border">
                     <h2 className="text-lg font-semibold mb-3">Available Documents</h2>
                     <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                        <a
+                        <Link
                             href="/docs"
                             className="text-blue-600 hover:text-blue-800 hover:underline font-medium"
                         >
                             📖 README.md
-                        </a>
-                        <a
+                        </Link>
+                        <Link
                             href="/docs/STYLE_GUIDE"
                             className="text-blue-600 hover:text-blue-800 hover:underline"
                         >
                             🎨 STYLE_GUIDE.md
-                        </a>
-                        <a
+                        </Link>
+                        <Link
                             href="/docs/STORYBOOK"
                             className="text-blue-600 hover:text-blue-800 hover:underline"
                         >
                             📚 STORYBOOK.md
-                        </a>
-                        <a
+                        </Link>
+                        <Link
                             href="/docs/TESTING"
                             className="text-blue-600 hover:text-blue-800 hover:underline"
                         >
                             🧪 TESTING.md
-                        </a>
-                        <a
+                        </Link>
+                        <Link
                             href="/docs/OAUTH_SETUP"
                             className="text-blue-600 hover:text-blue-800 hover:underline"
                         >
                             🔐 OAUTH_SETUP.md
-                        </a>
-                        <a
+                        </Link>
+                        <Link
                             href="/docs/PRODUCTION_TESTING"
                             className="text-blue-600 hover:text-blue-800 hover:underline"
                         >
                             🚀 PRODUCTION_TESTING.md
-                        </a>
+                        </Link>
                     </div>
                 </div>
 

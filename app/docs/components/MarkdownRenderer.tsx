@@ -11,7 +11,6 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
         let currentList: React.ReactNode[] = [];
         let inCodeBlock = false;
         let codeBlockContent: string[] = [];
-        let codeBlockLang = '';
 
         for (let i = 0; i < lines.length; i++) {
             const line = lines[i];
@@ -32,7 +31,8 @@ export default function MarkdownRenderer({ content }: MarkdownRendererProps) {
                 } else {
                     // Start code block
                     inCodeBlock = true;
-                    codeBlockLang = line.slice(3).trim();
+                    // Note: codeBlockLang is extracted but not currently used
+                    // const codeBlockLang = line.slice(3).trim();
                 }
                 continue;
             }
