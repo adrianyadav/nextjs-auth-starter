@@ -41,6 +41,14 @@ export async function POST(request: NextRequest) {
             );
         }
 
+        // Check if BLOB_READ_WRITE_TOKEN is available
+        if (!process.env.BLOB_READ_WRITE_TOKEN) {
+            return NextResponse.json(
+                { error: "Upload service not configured" },
+                { status: 503 }
+            );
+        }
+
         // Generate unique filename
         const timestamp = Date.now();
         const randomString = Math.random().toString(36).substring(2, 15);

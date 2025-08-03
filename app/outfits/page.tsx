@@ -1,7 +1,7 @@
 "use client";
 
 import { useSearchParams } from "next/navigation";
-import { useEffect, useState, Suspense } from "react";
+import { useEffect, useState, Suspense, useCallback } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import OutfitCard from "@/components/ui/outfit-card";
@@ -43,7 +43,7 @@ function OutfitsList() {
     const [totalPages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
 
-    const fetchOutfits = async () => {
+    const fetchOutfits = useCallback(async () => {
         setIsLoading(true);
         try {
             const res = await fetch(`/api/outfits?page=${page}`);
@@ -58,11 +58,11 @@ function OutfitsList() {
         } finally {
             setIsLoading(false);
         }
-    };
+    }, [page]);
 
     useEffect(() => {
         fetchOutfits();
-    }, [page]);
+    }, [fetchOutfits]);
 
     const handleAdminDelete = () => {
         // Re-fetch the outfits list after admin delete

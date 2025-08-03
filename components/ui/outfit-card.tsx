@@ -54,7 +54,6 @@ export default function OutfitCard({
 }: OutfitCardProps) {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
     const { isAdmin, loading: adminLoading } = useAdmin();
-    const { data: session } = useSession();
 
     const handleDeleteClick = (e: React.MouseEvent) => {
         e.preventDefault();
