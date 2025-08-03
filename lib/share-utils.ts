@@ -33,7 +33,7 @@ export async function createOrGetShareSlug(outfitId: number): Promise<string> {
     }
 
     // Generate a new share slug
-    let shareSlug: string;
+    let shareSlug: string | undefined;
     let isUnique = false;
     let attempts = 0;
     const maxAttempts = 10;
@@ -53,7 +53,7 @@ export async function createOrGetShareSlug(outfitId: number): Promise<string> {
         }
     }
 
-    if (!isUnique) {
+    if (!isUnique || !shareSlug) {
         throw new Error('Unable to generate unique share slug');
     }
 
@@ -63,7 +63,7 @@ export async function createOrGetShareSlug(outfitId: number): Promise<string> {
         data: { shareSlug }
     });
 
-    return shareSlug!;
+    return shareSlug;
 }
 
 export function getShareUrl(shareSlug: string): string {

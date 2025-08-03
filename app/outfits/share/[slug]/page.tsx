@@ -4,15 +4,17 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 
 interface SharedOutfitPageProps {
-    params: {
+    params: Promise<{
         slug: string;
-    };
+    }>;
 }
 
 export default async function SharedOutfitPage({ params }: SharedOutfitPageProps) {
+    const { slug } = await params;
+
     const outfit = await prisma.outfit.findUnique({
         where: {
-            shareSlug: params.slug,
+            shareSlug: slug,
             isPrivate: false, // Only show public outfits
         },
         include: {
@@ -98,7 +100,7 @@ export default async function SharedOutfitPage({ params }: SharedOutfitPageProps
                                             <CardHeader className="pb-2">
                                                 <CardTitle className="text-lg">{item.name}</CardTitle>
                                                 <CardDescription className="capitalize">
-                                                    {item.category.toLowerCase()}
+                                                    {item.category.toLowerCase().replace('_', ' ')}
                                                 </CardDescription>
                                             </CardHeader>
                                             <CardContent>
@@ -112,9 +114,9 @@ export default async function SharedOutfitPage({ params }: SharedOutfitPageProps
                                                         href={item.purchaseUrl}
                                                         target="_blank"
                                                         rel="noopener noreferrer"
-                                                        className="text-sm text-blue-600 hover:text-blue-800 underline"
+                                                        className="text-sm text-royal hover:underline"
                                                     >
-                                                        View Purchase Link →
+                                                        View Item →
                                                     </a>
                                                 )}
                                             </CardContent>

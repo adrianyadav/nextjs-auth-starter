@@ -6,7 +6,7 @@ import { createOrGetShareSlug, getShareUrl } from "@/lib/share-utils";
 
 export async function POST(
     request: NextRequest,
-    { params }: { params: Promise<{ id: string }> }
+    context: { params: Promise<{ id: string }> }
 ) {
     try {
         const session = await getServerSession(authOptions);
@@ -17,7 +17,7 @@ export async function POST(
             );
         }
 
-        const { id } = await params;
+        const { id } = await context.params;
         const outfitId = parseInt(id);
         if (isNaN(outfitId)) {
             return NextResponse.json(
