@@ -1,14 +1,31 @@
-# Next.js & Prisma Postgres Auth Starter
+# OutfitSave - Fashion Outfit Management App
 
-This repository provides a boilerplate to quickly set up a Next.js demo application with authentication using [NextAuth.js v4](https://next-auth.js.org/), [Prisma Postgres](https://www.prisma.io/postgres) and [Prisma ORM](https://www.prisma.io/orm), and deploy it to Vercel. It includes an easy setup process and example routes that demonstrate basic CRUD operations against the database.
+OutfitSave is a modern web application built with Next.js that helps users organize, save, and browse fashion outfits. Built with a responsive design and intuitive user interface, it provides a seamless experience for fashion enthusiasts to manage their wardrobe digitally.
 
 ## Features
 
-- Next.js 15 app with App Router, Server Actions & API Routes
-- Data modeling, database migrations, seeding & querying
-- Log in and sign up authentication flows
-- CRUD operations to create, view and delete blog posts
-- Pagination, filtering & relations queries
+- **Modern Tech Stack**: Next.js 15 with App Router, Server Actions & API Routes
+- **Authentication**: Secure login and signup using NextAuth.js v4
+- **Database**: Prisma ORM with PostgreSQL for reliable data storage
+- **Responsive Design**: Mobile-first approach with responsive header and navigation
+- **Outfit Management**: Create, view, edit, and delete outfit collections
+- **User Profiles**: Personalized experience with user-specific outfit libraries
+- **Modern UI**: Beautiful interface with gradient designs and smooth animations
+- **Real-time Updates**: Instant feedback and seamless user interactions
+
+## Key Components
+
+### Responsive Header
+- Mobile hamburger menu for smaller screens
+- Desktop horizontal navigation for larger screens
+- Smooth transitions and hover effects
+- User authentication status display
+
+### Outfit Management
+- Browse all public outfits
+- Create and manage personal outfit collections
+- User-specific "My Outfits" section
+- Intuitive CRUD operations
 
 ## Getting started
 
@@ -16,37 +33,27 @@ This repository provides a boilerplate to quickly set up a Next.js demo applicat
 
 After cloning the repo and navigating into it, install dependencies:
 
-```
+```bash
 npm install
 ```
 
-### 1. Create a Prisma Postgres instance
+### 2. Create a Prisma Postgres instance
 
 Create a Prisma Postgres instance by running the following command:
 
-```
+```bash
 npx prisma init --db
 ```
 
 This command is interactive and will prompt you to:
 
 1. Log in to the [Prisma Console](https://console.prisma.io)
-1. Select a **region** for your Prisma Postgres instance
-1. Give a **name** to your Prisma project
+2. Select a **region** for your Prisma Postgres instance
+3. Give a **name** to your Prisma project
 
 Once the command has terminated, copy the **Database URL** from the terminal output. You'll need it in the next step when you configure your `.env` file.
 
-<!-- Create a Prisma Postgres database instance using [Prisma Data Platform](https://console.prisma.io):
-
-1. Navigate to [Prisma Data Platform](https://console.prisma.io).
-2. Click **New project** to create a new project.
-3. Enter a name for your project in the **Name** field.
-4. Inside the **Prisma Postgres** section, click **Get started**.
-5. Choose a region close to your location from the **Region** dropdown.
-6. Click **Create project** to set up your database. This redirects you to the database setup page.
-7. In the **Set up database access** section, copy the `DATABASE_URL`. You will use this in the next steps. -->
-
-### 2. Set up your `.env` file
+### 3. Set up your `.env` file
 
 You now need to configure your database connection via an environment variable.
 
@@ -70,7 +77,7 @@ AUTH_SECRET="RANDOM_32_CHARACTER_STRING"
 
 You can generate a random 32 character string for the `AUTH_SECRET` secret with this command:
 
-```
+```bash
 npx auth secret
 ```
 
@@ -82,7 +89,7 @@ DATABASE_URL="prisma+postgres://accelerate.prisma-data.net/?api_key=eyJhbGciOiJI
 AUTH_SECRET="gTwLSXFeNWFRpUTmxlRniOfegXYw445pd0k6JqXd7Ag="
 ```
 
-### 3. Migrate the database
+### 4. Migrate the database
 
 Run the following commands to set up your database and Prisma schema:
 
@@ -90,25 +97,7 @@ Run the following commands to set up your database and Prisma schema:
 npx prisma migrate dev --name init
 ```
 
-<!--
-<details>
-
-<summary>Expand for <code>yarn</code>, <code>pnpm</code> or <code>bun</code></summary>
-
-```bash
-# Using yarn
-yarn prisma migrate dev --name init
-
-# Using pnpm
-pnpm prisma migrate dev --name init
-
-# Using bun
-bun prisma migrate dev --name init
-```
-
-</details> -->
-
-### 4. Seed the database
+### 5. Seed the database
 
 Add initial data to your database:
 
@@ -116,24 +105,7 @@ Add initial data to your database:
 npx prisma db seed
 ```
 
-<details>
-
-<summary>Expand for <code>yarn</code>, <code>pnpm</code> or <code>bun</code></summary>
-
-```bash
-# Using yarn
-yarn prisma db seed
-
-# Using pnpm
-pnpm prisma db seed
-
-# Using bun
-bun prisma db seed
-```
-
-</details>
-
-### 5. Run the app
+### 6. Run the app
 
 Start the development server:
 
@@ -141,28 +113,52 @@ Start the development server:
 npm run dev
 ```
 
-<details>
+Once the server is running, visit `http://localhost:3000` to start using OutfitSave.
 
-<summary>Expand for <code>yarn</code>, <code>pnpm</code> or <code>bun</code></summary>
+## Project Structure
 
-```bash
-# Using yarn
-yarn dev
-
-# Using pnpm
-pnpm run dev
-
-# Using bun
-bun run dev
+```
+app/
+├── components/          # Reusable UI components
+├── Header.tsx          # Responsive navigation header
+├── layout.tsx          # Root layout with providers
+├── page.tsx            # Home page
+├── outfits/            # Outfit browsing pages
+├── my-outfits/         # User's personal outfits
+└── login/              # Authentication pages
 ```
 
-</details>
+## Technologies Used
 
-Once the server is running, visit `http://localhost:3000` to start using the app.
+- **Frontend**: Next.js 15, React, TypeScript
+- **Styling**: Tailwind CSS with custom design system
+- **Authentication**: NextAuth.js v4
+- **Database**: PostgreSQL with Prisma ORM
+- **Icons**: Lucide React
+- **UI Components**: Custom component library
 
-## Next steps
+## Responsive Design
+
+The application features a mobile-first responsive design:
+
+- **Mobile (< 768px)**: Hamburger menu with full-width dropdown navigation
+- **Tablet (768px+)**: Full horizontal navigation
+- **Desktop (1024px+)**: Enhanced spacing and layout optimizations
+
+## Contributing
+
+1. Fork the repository
+2. Create a feature branch
+3. Make your changes
+4. Test thoroughly
+5. Submit a pull request
+
+## License
+
+This project is licensed under the MIT License.
+
+## Support
 
 - [Prisma ORM documentation](https://www.prisma.io/docs/orm)
-- [Prisma Client API reference](https://www.prisma.io/docs/orm/prisma-client)
-- [Join our Discord community](https://discord.com/invite/prisma)
-- [Follow us on Twitter](https://twitter.com/prisma)
+- [Next.js documentation](https://nextjs.org/docs)
+- [NextAuth.js documentation](https://next-auth.js.org/)
