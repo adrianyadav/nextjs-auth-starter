@@ -54,18 +54,18 @@ export default async function Home() {
     showcaseOutfits = outfits.map(outfit => ({
       id: outfit.id,
       name: outfit.name,
-      description: outfit.description,
-      imageUrl: outfit.imageUrl,
+      description: outfit.description || undefined,
+      imageUrl: outfit.imageUrl || undefined,
       tags: outfit.tags,
       isPrivate: outfit.isPrivate,
-      shareSlug: outfit.shareSlug,
+      shareSlug: outfit.shareSlug || undefined,
       createdAt: outfit.createdAt.toISOString(),
       items: outfit.items.map(item => ({
         id: item.id,
         name: item.name,
         category: item.category,
-        description: item.description,
-        purchaseUrl: item.purchaseUrl,
+        description: item.description || undefined,
+        purchaseUrl: item.purchaseUrl || undefined,
       })),
     }));
   } catch (error) {
@@ -157,15 +157,8 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Sample Outfits Section - Masonry Style */}
-      <section className="py-24 bg-muted/30 relative overflow-hidden">
-        {/* Curved Divider */}
-        <div className="absolute top-0 left-0 right-0">
-          <svg className="w-full h-16 text-background" viewBox="0 0 1200 120" preserveAspectRatio="none">
-            <path d="M0,120L48,110C96,100,192,80,288,70C384,60,480,60,576,65C672,70,768,80,864,85C960,90,1056,90,1152,85C1200,82,1200,78,1200,75L1200,120Z" fill="currentColor"></path>
-          </svg>
-        </div>
-
+      {/* Showcase Section */}
+      <section className="py-20">
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 relative">
           {/* Asymmetric Header */}
           <div className="grid lg:grid-cols-2 gap-12 items-center mb-16">
