@@ -5,7 +5,7 @@ import prisma from '@/lib/prisma';
 
 export async function DELETE(
     request: NextRequest,
-    { params }: { params: { id: string } }
+    { params }: { params: Promise<{ id: string }> }
 ) {
     try {
         // Get the current session
@@ -25,7 +25,9 @@ export async function DELETE(
             return NextResponse.json({ error: 'Admin access required' }, { status: 403 });
         }
 
-        const outfitId = parseInt(params.id);
+        // Await the params in Next.js 15
+        const { id } = await params;
+        const outfitId = parseInt(id);
 
         if (isNaN(outfitId)) {
             return NextResponse.json({ error: 'Invalid outfit ID' }, { status: 400 });
