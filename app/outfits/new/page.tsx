@@ -10,7 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import ImageUpload from "@/components/ui/image-upload";
-import { Plus, X } from "lucide-react";
+import { Plus, X, Shirt, PersonStanding } from "lucide-react";
 
 interface OutfitItem {
     name: string;
@@ -27,7 +27,7 @@ export default function NewOutfitPage() {
         description: "",
         imageUrl: "",
         tags: "",
-        isPrivate: false,
+        isPrivate: true,
     });
     const [items, setItems] = useState<OutfitItem[]>([]);
 
@@ -65,18 +65,18 @@ export default function NewOutfitPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
-        
+
         // Validate required fields
         if (!formData.name.trim()) {
             alert("Please enter an outfit name.");
             return;
         }
-        
+
         if (!formData.imageUrl?.trim()) {
             alert("Please upload an image or provide an image URL. Images are required to help visualize your outfit.");
             return;
         }
-        
+
         setIsLoading(true);
 
         try {
@@ -96,7 +96,7 @@ export default function NewOutfitPage() {
             });
 
             if (response.ok) {
-                router.push("/outfits");
+                router.push("/my-outfits");
             } else {
                 const errorData = await response.json();
                 throw new Error(errorData.error || "Failed to create outfit");
@@ -124,138 +124,187 @@ export default function NewOutfitPage() {
     };
 
     return (
-        <div className="min-h-screen bg-background flex flex-col items-center justify-start p-8">
-            <div className="w-full max-w-4xl">
-                <CardHeader className="px-0">
-                    <CardTitle className="text-3xl">Save New Outfit</CardTitle>
-                </CardHeader>
+        <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
+            <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
+                {/* Header Section */}
+                <div className="mb-12">
+                    <h1 className="text-5xl md:text-6xl font-black text-foreground mb-6 leading-tight">
+                        Save New <span className="text-gradient-royal">Outfit</span>
+                    </h1>
+                    <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">
+                        Create and organize your perfect outfit with all the details that matter
+                    </p>
+                </div>
 
-                <Card>
-                    <CardContent className="p-6">
-                        <form onSubmit={handleSubmit} className="space-y-6">
+                <Card className="shadow-xl border-0 bg-card/50 backdrop-blur-sm">
+                    <CardContent className="p-8">
+                        <form onSubmit={handleSubmit} className="space-y-8">
                             {/* Basic Outfit Information */}
-                            <div className="space-y-4">
-                                <h3 className="text-lg font-semibold">Basic Information</h3>
-
-                                <div className="space-y-2">
-                                    <Label htmlFor="name">Outfit Name *</Label>
-                                    <Input
-                                        type="text"
-                                        id="name"
-                                        name="name"
-                                        required
-                                        value={formData.name}
-                                        onChange={handleChange}
-                                        placeholder="Enter outfit name"
-                                    />
+                            <div className="space-y-6">
+                                <div className="flex items-center gap-3 mb-6">
+                                    <div className="w-8 h-8 bg-gradient-royal rounded-lg flex items-center justify-center">
+                                        <PersonStanding className="w-4 h-4 text-white" />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-foreground">Basic Information</h3>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="description">Description</Label>
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                    <div className="space-y-3">
+                                        <Label htmlFor="name" className="text-sm font-semibold text-foreground">Outfit Name *</Label>
+                                        <Input
+                                            type="text"
+                                            id="name"
+                                            name="name"
+                                            required
+                                            value={formData.name}
+                                            onChange={handleChange}
+                                            placeholder="Enter outfit name"
+                                            className="h-12 text-lg border-2 border-border/50 focus:border-royal transition-colors"
+                                        />
+                                    </div>
+
+                                    <div className="space-y-3">
+                                        <Label htmlFor="tags" className="text-sm font-semibold text-foreground">Tags (comma-separated)</Label>
+                                        <Input
+                                            type="text"
+                                            id="tags"
+                                            name="tags"
+                                            value={formData.tags}
+                                            onChange={handleChange}
+                                            placeholder="casual, summer, formal"
+                                            className="h-12 text-lg border-2 border-border/50 focus:border-royal transition-colors"
+                                        />
+                                    </div>
+                                </div>
+
+                                <div className="space-y-3">
+                                    <Label htmlFor="description" className="text-sm font-semibold text-foreground">Description</Label>
                                     <Textarea
                                         id="description"
                                         name="description"
                                         value={formData.description}
                                         onChange={handleChange}
-                                        rows={3}
-                                        placeholder="Describe your outfit..."
+                                        rows={4}
+                                        placeholder="Describe your outfit, when you'd wear it, or any special details..."
+                                        className="text-lg border-2 border-border/50 focus:border-royal transition-colors resize-none"
                                     />
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label>Outfit Image *</Label>
-                                    <ImageUpload
-                                        onImageUpload={(imageUrl) => {
-                                            setFormData({
-                                                ...formData,
-                                                imageUrl,
-                                            });
-                                        }}
-                                        currentImageUrl={formData.imageUrl}
-                                    />
-                                    <CardDescription>
+                                <div className="space-y-3">
+                                    <Label className="text-sm font-semibold text-foreground">Outfit Image *</Label>
+                                    <div className="border-2 border-dashed border-border/50 rounded-lg p-6 bg-muted/20">
+                                        <ImageUpload
+                                            onImageUpload={(imageUrl) => {
+                                                setFormData({
+                                                    ...formData,
+                                                    imageUrl,
+                                                });
+                                            }}
+                                            currentImageUrl={formData.imageUrl}
+                                        />
+                                    </div>
+                                    <CardDescription className="text-sm text-muted-foreground/80">
                                         An image is required to help visualize your outfit. Upload a photo or provide an image URL.
                                     </CardDescription>
                                 </div>
 
-                                <div className="space-y-2">
-                                    <Label htmlFor="tags">Tags (comma-separated)</Label>
-                                    <Input
-                                        type="text"
-                                        id="tags"
-                                        name="tags"
-                                        value={formData.tags}
-                                        onChange={handleChange}
-                                        placeholder="casual, summer, formal"
-                                    />
-                                    <CardDescription>Add tags to help organize your outfits</CardDescription>
-                                </div>
-
-                                <div className="flex items-center space-x-2">
+                                <div className="flex items-center space-x-3 p-4 bg-muted/30 rounded-lg border border-border/50">
                                     <Checkbox
                                         id="isPrivate"
                                         checked={formData.isPrivate}
                                         onCheckedChange={handleCheckboxChange}
                                     />
-                                    <Label htmlFor="isPrivate">Make this outfit private</Label>
+                                    <div>
+                                        <Label htmlFor="isPrivate" className="text-sm font-semibold text-foreground">Make this outfit private</Label>
+                                        <CardDescription className="text-xs text-muted-foreground/80">
+                                            Private outfits are only visible to you and cannot be shared
+                                        </CardDescription>
+                                    </div>
                                 </div>
-                                <CardDescription>
-                                    Private outfits are only visible to you and cannot be shared
-                                </CardDescription>
                             </div>
 
                             {/* Outfit Items */}
-                            <div className="space-y-4">
+                            <div className="space-y-6">
                                 <div className="flex items-center justify-between">
-                                    <h3 className="text-lg font-semibold">Outfit Items</h3>
+                                    <div className="flex items-center gap-3">
+                                        <div className="w-8 h-8 bg-gradient-royal rounded-lg flex items-center justify-center">
+                                            <Shirt className="w-4 h-4 text-white" />
+                                        </div>
+                                        <h3 className="text-2xl font-bold text-foreground">Outfit Items</h3>
+                                    </div>
                                     <Button
                                         type="button"
                                         variant="outline"
-                                        size="sm"
+                                        size="lg"
                                         onClick={addItem}
+                                        className="border-2 border-royal/30 text-royal hover:bg-royal hover:text-royal-foreground transition-all duration-300 transform hover:scale-105"
                                     >
-                                        <Plus className="h-4 w-4 mr-2" />
+                                        <Plus className="h-5 w-5 mr-2" />
                                         Add Item
                                     </Button>
                                 </div>
 
                                 {items.length === 0 && (
-                                    <CardDescription>
-                                        Add individual items to your outfit to track what you&apos;re wearing
-                                    </CardDescription>
+                                    <div className="text-center py-12 bg-muted/20 rounded-lg border-2 border-dashed border-border/50">
+                                        <svg className="w-12 h-12 text-muted-foreground/50 mx-auto mb-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1} d="M20 7l-8-4-8 4m16 0l-8 4m8-4v10l-8 4m0-10L4 7m8 4v10M4 7v10l8 4" />
+                                        </svg>
+                                        <CardDescription className="text-lg text-muted-foreground">
+                                            Add individual items to your outfit to track what you&apos;re wearing
+                                        </CardDescription>
+                                    </div>
                                 )}
 
                                 {items.map((item, index) => (
-                                    <Card key={index} className="p-4">
-                                        <div className="flex items-center justify-between mb-4">
-                                            <h4 className="font-medium">Item {index + 1}</h4>
+                                    <Card key={index} className="p-6 border-2 border-border/50 bg-card/50 shadow-lg">
+                                        <div className="flex items-center justify-between mb-6">
+                                            <div className="flex items-center gap-3">
+                                                <div className="w-6 h-6 bg-royal/20 rounded-full flex items-center justify-center">
+                                                    <span className="text-sm font-bold text-royal">{index + 1}</span>
+                                                </div>
+                                                <h4 className="font-semibold text-lg text-foreground">
+                                                    {item.category ? `${itemCategories.find(cat => cat.value === item.category)?.label || 'Clothing Item'}` : 'Clothing Item'}
+                                                </h4>
+                                            </div>
                                             <Button
                                                 type="button"
                                                 variant="ghost"
                                                 size="sm"
                                                 onClick={() => removeItem(index)}
+                                                className="text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors"
                                             >
-                                                <X className="h-4 w-4" />
+                                                <X className="h-5 w-5" />
                                             </Button>
                                         </div>
 
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                            <div className="space-y-2">
-                                                <Label>Item Name *</Label>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                            <div className="space-y-3">
+                                                <Label className="text-sm font-semibold text-foreground">
+                                                    {item.category ? `${itemCategories.find(cat => cat.value === item.category)?.label} Name *` : 'Item Name *'}
+                                                </Label>
                                                 <Input
                                                     value={item.name}
                                                     onChange={(e) => updateItem(index, "name", e.target.value)}
-                                                    placeholder="e.g., Nike Air Max, Levi&apos;s 501 Jeans"
+                                                    placeholder={item.category ?
+                                                        (item.category === 'UPPERWEAR' ? 'e.g., Nike Air Max, Levi\'s 501 Jeans' :
+                                                            item.category === 'LOWERWEAR' ? 'e.g., Levi\'s 501 Jeans, Nike Joggers' :
+                                                                item.category === 'FOOTWEAR' ? 'e.g., Nike Air Max, Converse Chuck Taylor' :
+                                                                    item.category === 'HEADWEAR' ? 'e.g., New Era Cap, Beanie' :
+                                                                        item.category === 'ACCESSORIES' ? 'e.g., Ray-Ban Aviators, Apple Watch' :
+                                                                            'e.g., Brand Name, Model') :
+                                                        'e.g., Nike Air Max, Levi\'s 501 Jeans'
+                                                    }
+                                                    className="h-12 border-2 border-border/50 focus:border-royal transition-colors"
                                                 />
                                             </div>
 
-                                            <div className="space-y-2">
-                                                <Label>Category *</Label>
+                                            <div className="space-y-3">
+                                                <Label className="text-sm font-semibold text-foreground">Category *</Label>
                                                 <Select
                                                     value={item.category}
                                                     onValueChange={(value) => updateItem(index, "category", value)}
                                                 >
-                                                    <SelectTrigger>
+                                                    <SelectTrigger className="h-12 border-2 border-border/50 focus:border-royal transition-colors">
                                                         <SelectValue placeholder="Select category" />
                                                     </SelectTrigger>
                                                     <SelectContent>
@@ -268,22 +317,24 @@ export default function NewOutfitPage() {
                                                 </Select>
                                             </div>
 
-                                            <div className="space-y-2">
-                                                <Label>Description</Label>
+                                            <div className="space-y-3">
+                                                <Label className="text-sm font-semibold text-foreground">Description</Label>
                                                 <Input
                                                     value={item.description}
                                                     onChange={(e) => updateItem(index, "description", e.target.value)}
-                                                    placeholder="Optional description"
+                                                    placeholder="Optional details about this item"
+                                                    className="h-12 border-2 border-border/50 focus:border-royal transition-colors"
                                                 />
                                             </div>
 
-                                            <div className="space-y-2">
-                                                <Label>Purchase Link</Label>
+                                            <div className="space-y-3">
+                                                <Label className="text-sm font-semibold text-foreground">Purchase Link</Label>
                                                 <Input
                                                     type="url"
                                                     value={item.purchaseUrl}
                                                     onChange={(e) => updateItem(index, "purchaseUrl", e.target.value)}
                                                     placeholder="https://store.com/item"
+                                                    className="h-12 border-2 border-border/50 focus:border-royal transition-colors"
                                                 />
                                             </div>
                                         </div>
@@ -291,19 +342,33 @@ export default function NewOutfitPage() {
                                 ))}
                             </div>
 
-                            <div className="flex justify-end space-x-4">
+                            <div className="flex justify-end space-x-4 pt-8 border-t border-border/50">
                                 <Button
                                     type="button"
                                     variant="outline"
                                     onClick={() => router.back()}
+                                    className="px-8 py-3 border-2 border-border/50 hover:border-royal/30 text-foreground hover:text-royal transition-all duration-300"
                                 >
                                     Cancel
                                 </Button>
                                 <Button
                                     type="submit"
                                     disabled={isLoading}
+                                    className="px-8 py-3 bg-gradient-royal hover:bg-gradient-royal-light text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
                                 >
-                                    {isLoading ? "Saving..." : "Save Outfit"}
+                                    {isLoading ? (
+                                        <div className="flex items-center gap-2">
+                                            <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin"></div>
+                                            Saving...
+                                        </div>
+                                    ) : (
+                                        <div className="flex items-center gap-2">
+                                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+                                            </svg>
+                                            Save Outfit
+                                        </div>
+                                    )}
                                 </Button>
                             </div>
                         </form>

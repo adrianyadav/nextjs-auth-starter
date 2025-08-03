@@ -26,14 +26,21 @@ export async function loginWithTestAccount(page: Page) {
     await page.fill('input[name="email"]', testEmail);
     await page.fill('input[name="password"]', testPassword);
     await page.click('button[type="submit"]');
+
+    // Wait for the form submission to complete
     await page.waitForLoadState('networkidle');
-    await page.waitForURL('/', { timeout: 10000 });
+
+    // Wait for navigation to complete - use a more reliable approach
+    await page.waitForURL('/', { timeout: 30000 });
+
+    // Additional wait to ensure the page is fully loaded
+    await page.waitForLoadState('domcontentloaded');
 
     return { testEmail, testPassword, testName: 'Test User' };
 }
 
 export async function createTestAccount(page: Page) {
-    const testEmail = 'test@example.com';
+    const testEmail = `test-${Date.now()}@example.com`;
     const testPassword = 'password123';
     const testName = 'Test User';
 
@@ -97,17 +104,27 @@ export async function createOutfit(page: Page, options: CreateOutfitOptions = {}
     // Navigate to add outfit page
     await page.goto('/outfits/new');
 
+    // Wait for the page to be fully loaded
+    await page.waitForLoadState('domcontentloaded');
+
     // Fill in basic outfit information
     await page.fill('input[name="name"]', name);
     await page.fill('textarea[name="description"]', description);
     await page.fill('input[name="tags"]', tags);
 
-    // Add image URL
+    // Add image URL - the new form has an ImageUpload component
     if (imageUrl) {
-        // Click on URL mode button
+        // Wait for the ImageUpload component to be ready
+        await page.waitForSelector('button:has-text("Image URL")', { timeout: 10000 });
+
+        // First click the "Image URL" button to switch to URL mode
         await page.click('button:has-text("Image URL")');
-        // Fill in the image URL
-        await page.fill('input[type="url"]', imageUrl);
+
+        // Wait for the URL input field to appear
+        await page.waitForSelector('input[id="imageUrl"]', { timeout: 10000 });
+
+        // Then fill in the URL input field
+        await page.fill('input[id="imageUrl"]', imageUrl);
     }
 
     // Set private status if needed
@@ -135,8 +152,8 @@ export async function createOutfit(page: Page, options: CreateOutfitOptions = {}
     // Submit the form
     await page.click('button[type="submit"]');
 
-    // Wait for redirect to outfits page
-    await page.waitForURL('/outfits');
+    // Wait for redirect to my-outfits page
+    await page.waitForURL('/my-outfits');
 
     return { name, isPrivate };
 } 
