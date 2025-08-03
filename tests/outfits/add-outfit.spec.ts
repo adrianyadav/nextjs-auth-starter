@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginWithTestAccount, createOutfit } from '../utils';
+import { loginWithTestAccount, createOutfit, cleanupTestOutfits } from '../utils';
 
 // Shared outfit data
 const getOutfitData = (isPrivate = false) => ({
@@ -22,13 +22,24 @@ const getOutfitData = (isPrivate = false) => ({
 });
 
 test.describe('Add Outfit', () => {
+    let createdOutfits: string[] = [];
+
     test.beforeEach(async ({ page }) => {
         // Login with existing test account before each test
         await loginWithTestAccount(page);
     });
 
+    test.afterEach(async ({ page }) => {
+        // Clean up any outfits created during the test
+        if (createdOutfits.length > 0) {
+            await cleanupTestOutfits(page, createdOutfits);
+            createdOutfits = []; // Reset the array
+        }
+    });
+
     test('should create a new outfit successfully', async ({ page }) => {
         const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        createdOutfits.push(outfitName);
 
         // Verify the outfit was created
         await expect(page.locator(`text=${outfitName}`)).toBeVisible();
@@ -39,6 +50,7 @@ test.describe('Add Outfit', () => {
             ...getOutfitData(true),
             isPrivate: true
         });
+        createdOutfits.push(outfitName);
 
         // For private outfits, check the my-outfits page
         if (isPrivate) {

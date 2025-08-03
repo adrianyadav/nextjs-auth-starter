@@ -18,8 +18,10 @@ export async function registerAndLogin(page: Page) {
 }
 
 export async function loginWithTestAccount(page: Page) {
-    const testEmail = 'test@example.com';
-    const testPassword = 'password123';
+    // Use environment variables for production testing, fallback to local test account
+    const testEmail = process.env.PROD_TEST_EMAIL || 'test@example.com';
+    const testPassword = process.env.PROD_TEST_PASSWORD || 'password123';
+    const testName = process.env.PROD_TEST_NAME || 'Test User';
 
     // Login with existing test account
     await page.goto('/login');
@@ -36,7 +38,7 @@ export async function loginWithTestAccount(page: Page) {
     // Additional wait to ensure the page is fully loaded
     await page.waitForLoadState('domcontentloaded');
 
-    return { testEmail, testPassword, testName: 'Test User' };
+    return { testEmail, testPassword, testName };
 }
 
 export async function createTestAccount(page: Page) {
@@ -156,4 +158,44 @@ export async function createOutfit(page: Page, options: CreateOutfitOptions = {}
     await page.waitForURL('/my-outfits');
 
     return { name, isPrivate };
+}
+
+/**
+ * Clean up test outfits created during testing
+ * This is especially important for production testing
+ */
+export async function cleanupTestOutfits(page: Page, outfitNames: string[]) {
+    console.log(`🧹 Cleaning up ${outfitNames.length} test outfits...`);
+
+    for (const outfitName of outfitNames) {
+        try {
+            // Navigate to my outfits page
+            await page.goto('/my-outfits');
+
+            // Find and click delete button for the specific outfit
+            const outfitCard = page.locator('a[href*="/outfits/"]').filter({ hasText: outfitName });
+            const deleteButton = outfitCard.locator('button').filter({ hasText: 'Delete' });
+
+            if (await deleteButton.isVisible()) {
+                await deleteButton.click();
+
+                // Confirm deletion
+                await page.locator('[data-testid="confirm-dialog-confirm"]').click();
+
+                // Wait for deletion to complete
+                await page.waitForLoadState('networkidle');
+
+                console.log(`✅ Deleted outfit: ${outfitName}`);
+            } else {
+                console.log(`⚠️  Outfit not found for deletion: ${outfitName}`);
+            }
+        } catch (error) {
+            console.error(`❌ Failed to delete outfit ${outfitName}:`, error);
+        }
+
+        // Small delay to avoid overwhelming the server
+        await page.waitForTimeout(1000);
+    }
+
+    console.log('✅ Cleanup completed');
 } 

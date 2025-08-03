@@ -13,6 +13,9 @@
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
     "test:debug": "playwright test --debug",
+    "test:prod": "playwright test --config=playwright.config.prod.ts --headed",
+    "test:prod:ui": "playwright test --config=playwright.config.prod.ts --ui",
+    "test:prod:headed": "playwright test --config=playwright.config.prod.ts --headed",
     "db:reset": "./scripts/reset-db.sh"
   },
   "dependencies": {
