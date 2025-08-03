@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { useState } from "react";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -60,8 +61,8 @@ export default function OutfitCard({
         }
     };
     return (
-        <Link 
-            href={showDeleteDialog ? "#" : `/outfits/${outfit.id}`} 
+        <Link
+            href={showDeleteDialog ? "#" : `/outfits/${outfit.id}`}
             className="block"
             data-testid={`outfit-card-${outfit.id}`}
             onClick={(e) => {
@@ -75,10 +76,11 @@ export default function OutfitCard({
                 <div className="aspect-square bg-gradient-to-br from-royal/10 to-royal/5 flex items-center justify-center relative overflow-hidden">
                     {outfit.imageUrl ? (
                         <>
-                            <img
+                            <Image
                                 src={outfit.imageUrl}
                                 alt={outfit.name}
-                                className="w-full h-full object-cover transition-transform duration-500 group-hover:scale-110"
+                                fill
+                                className="object-cover transition-transform duration-500 group-hover:scale-110"
                             />
 
                         </>

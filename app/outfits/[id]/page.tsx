@@ -89,7 +89,7 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                 // Try multiple redirect methods
                 try {
                     router.push("/my-outfits");
-                } catch (e) {
+                } catch {
                     console.log("Router failed, using window.location");
                     window.location.href = "/my-outfits";
                 }

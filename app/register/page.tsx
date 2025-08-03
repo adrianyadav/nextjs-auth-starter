@@ -52,8 +52,8 @@ export default function RegisterPage() {
 
       router.push("/");
       router.refresh();
-    } catch (error) {
-      setError(error instanceof Error ? error.message : "Registration failed");
+    } catch {
+      setError("Registration failed");
     } finally {
       setIsLoading(false);
     }
@@ -77,7 +77,7 @@ export default function RegisterPage() {
       if (result?.url) {
         router.push(result.url);
       }
-    } catch (error) {
+    } catch {
       setError("An error occurred during Google sign-in");
     } finally {
       setIsLoading(false);

@@ -1,4 +1,5 @@
 import { notFound } from "next/navigation";
+import Image from "next/image";
 import prisma from "@/lib/prisma";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
@@ -59,11 +60,12 @@ export default async function SharedOutfitPage({ params }: SharedOutfitPageProps
                     {outfit.imageUrl && (
                         <div className="space-y-4">
                             <h2 className="text-2xl font-semibold">Outfit</h2>
-                            <div className="aspect-square rounded-lg overflow-hidden bg-muted">
-                                <img
+                            <div className="aspect-square rounded-lg overflow-hidden bg-muted relative">
+                                <Image
                                     src={outfit.imageUrl}
                                     alt={outfit.name}
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    className="object-cover"
                                 />
                             </div>
                         </div>

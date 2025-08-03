@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginWithTestAccount, createOutfit } from '../utils';
+import { loginWithTestAccount, createOutfit, cleanupTestOutfits } from '../utils';
 import { OutfitPage } from '../pages/outfit-page';
 
 // Shared outfit data for public outfit
@@ -25,6 +25,7 @@ const getPublicOutfitData = () => ({
 
 test.describe('Save Outfit', () => {
     let outfitPage: OutfitPage;
+    let createdOutfits: string[] = [];
 
     test.beforeEach(async ({ page }) => {
         // Login with existing test account before each test
@@ -32,9 +33,18 @@ test.describe('Save Outfit', () => {
         outfitPage = new OutfitPage(page);
     });
 
+    test.afterEach(async ({ page }) => {
+        // Clean up any outfits created during the test
+        if (createdOutfits.length > 0) {
+            await cleanupTestOutfits(page, createdOutfits);
+            createdOutfits = []; // Reset the array
+        }
+    });
+
     test('should save a public outfit to my collection', async ({ page }) => {
         // Create a public outfit first
         const { name: outfitName } = await createOutfit(page, getPublicOutfitData());
+        createdOutfits.push(outfitName);
 
         // Navigate to the outfit detail page
         await outfitPage.gotoMyOutfits();
@@ -82,6 +92,7 @@ test.describe('Save Outfit', () => {
             ...getPublicOutfitData(),
             isPrivate: true
         });
+        createdOutfits.push(outfitName);
 
         // Navigate to the outfit detail page
         await outfitPage.gotoMyOutfits();

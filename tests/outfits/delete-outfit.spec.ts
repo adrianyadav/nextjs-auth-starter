@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginWithTestAccount, createOutfit } from '../utils';
+import { loginWithTestAccount, createOutfit, cleanupTestOutfits } from '../utils';
 import { OutfitPage } from '../pages/outfit-page';
 
 // Shared outfit data
@@ -24,6 +24,7 @@ const getOutfitData = (isPrivate = false) => ({
 
 test.describe('Delete Outfit', () => {
     let outfitPage: OutfitPage;
+    let createdOutfits: string[] = [];
 
     test.beforeEach(async ({ page }) => {
         // Login with existing test account before each test
@@ -31,9 +32,18 @@ test.describe('Delete Outfit', () => {
         outfitPage = new OutfitPage(page);
     });
 
+    test.afterEach(async ({ page }) => {
+        // Clean up any outfits created during the test
+        if (createdOutfits.length > 0) {
+            await cleanupTestOutfits(page, createdOutfits);
+            createdOutfits = []; // Reset the array
+        }
+    });
+
     test('should delete an outfit from My Outfits page', async ({ page }) => {
         // Create an outfit first
         const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        createdOutfits.push(outfitName);
 
         // Navigate to My Outfits page
         await outfitPage.gotoMyOutfits();
@@ -54,6 +64,7 @@ test.describe('Delete Outfit', () => {
     test('should delete an outfit from outfit detail page', async ({ page }) => {
         // Create an outfit first
         const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        createdOutfits.push(outfitName);
 
         // Navigate to My Outfits page and go to outfit detail
         await outfitPage.gotoMyOutfits();
@@ -75,6 +86,7 @@ test.describe('Delete Outfit', () => {
     test('should cancel deletion when clicking cancel', async ({ page }) => {
         // Create an outfit first
         const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        createdOutfits.push(outfitName);
 
         // Navigate to My Outfits page
         await outfitPage.gotoMyOutfits();
@@ -92,6 +104,7 @@ test.describe('Delete Outfit', () => {
     test('should show loading state during deletion', async ({ page }) => {
         // Create an outfit first
         const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        createdOutfits.push(outfitName);
 
         // Navigate to My Outfits page
         await outfitPage.gotoMyOutfits();

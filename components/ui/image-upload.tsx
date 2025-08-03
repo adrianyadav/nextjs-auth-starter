@@ -1,6 +1,7 @@
 "use client";
 
 import { useState, useRef } from "react";
+import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
@@ -123,11 +124,12 @@ export default function ImageUpload({ onImageUpload, currentImageUrl, className 
                 <div className="relative">
                     <Card>
                         <CardContent className="p-4">
-                            <div className="aspect-square rounded-lg overflow-hidden bg-muted">
-                                <img
+                            <div className="aspect-square rounded-lg overflow-hidden bg-muted relative">
+                                <Image
                                     src={previewUrl}
                                     alt="Outfit preview"
-                                    className="w-full h-full object-cover"
+                                    fill
+                                    className="object-cover"
                                 />
                             </div>
                             <div className="flex justify-between items-center mt-3">
