@@ -4,8 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
+import OutfitCard from "@/components/ui/outfit-card";
 
 interface Outfit {
     id: number;
@@ -63,40 +62,19 @@ function OutfitsList() {
                     {outfits.length === 0 ? (
                         <p className="text-muted-foreground">No outfits available.</p>
                     ) : (
-                        <ul className="space-y-6 w-full max-w-4xl mx-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl mx-auto">
                             {outfits.map((outfit) => (
-                                <Card key={outfit.id} className="shadow-md">
-                                    <CardHeader>
-                                        <CardTitle>
-                                            <Link href={`/outfits/${outfit.id}`} className="hover:underline">
-                                                {outfit.name}
-                                            </Link>
-                                        </CardTitle>
-                                        <CardDescription>
-                                            by {outfit.user?.name || "Anonymous"}
-                                        </CardDescription>
-                                        <p className="text-xs text-muted-foreground">
-                                            {new Date(outfit.createdAt).toLocaleDateString("en-US", {
-                                                year: "numeric",
-                                                month: "long",
-                                                day: "numeric",
-                                            })}
-                                        </p>
-                                    </CardHeader>
-                                    {outfit.tags && outfit.tags.length > 0 && (
-                                        <CardContent className="pt-0">
-                                            <div className="flex flex-wrap gap-2">
-                                                {outfit.tags.map((tag, index) => (
-                                                    <Badge key={index} variant="secondary">
-                                                        {tag}
-                                                    </Badge>
-                                                ))}
-                                            </div>
-                                        </CardContent>
-                                    )}
-                                </Card>
+                                <OutfitCard
+                                    key={outfit.id}
+                                    outfit={{
+                                        ...outfit,
+                                        isPrivate: false,
+                                        items: []
+                                    }}
+                                    showActions={false}
+                                />
                             ))}
-                        </ul>
+                        </div>
                     )}
 
                     {/* Pagination Controls */}

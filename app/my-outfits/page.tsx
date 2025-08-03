@@ -4,9 +4,7 @@ import { useSearchParams } from "next/navigation";
 import { useEffect, useState, Suspense } from "react";
 import Link from "next/link";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
-import { Badge } from "@/components/ui/badge";
-import { Share2, Lock, Eye } from "lucide-react";
+import OutfitCard from "@/components/ui/outfit-card";
 
 interface OutfitItem {
     id: number;
@@ -103,94 +101,17 @@ function MyOutfitsList() {
                             </Button>
                         </div>
                     ) : (
-                        <ul className="space-y-6 w-full max-w-4xl mx-auto">
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full max-w-6xl mx-auto">
                             {outfits.map((outfit) => (
-                                <Card key={outfit.id} className="shadow-md">
-                                    <CardHeader>
-                                        <div className="flex items-start justify-between">
-                                            <div className="flex-1">
-                                                <CardTitle>
-                                                    <Link href={`/outfits/${outfit.id}`} className="hover:underline">
-                                                        {outfit.name}
-                                                    </Link>
-                                                </CardTitle>
-                                                <CardDescription>
-                                                    {new Date(outfit.createdAt).toLocaleDateString("en-US", {
-                                                        year: "numeric",
-                                                        month: "long",
-                                                        day: "numeric",
-                                                    })}
-                                                </CardDescription>
-                                            </div>
-                                            <div className="flex items-center space-x-2">
-                                                {outfit.isPrivate ? (
-                                                    <Badge variant="secondary" className="flex items-center gap-1">
-                                                        <Lock className="h-3 w-3" />
-                                                        Private
-                                                    </Badge>
-                                                ) : (
-                                                    <Badge variant="outline" className="flex items-center gap-1">
-                                                        <Eye className="h-3 w-3" />
-                                                        Public
-                                                    </Badge>
-                                                )}
-                                                {!outfit.isPrivate && (
-                                                    <Button
-                                                        variant="outline"
-                                                        size="sm"
-                                                        onClick={() => handleShare(outfit.id)}
-                                                        disabled={sharingOutfit === outfit.id}
-                                                    >
-                                                        <Share2 className="h-4 w-4 mr-2" />
-                                                        {sharingOutfit === outfit.id ? "Sharing..." : "Share"}
-                                                    </Button>
-                                                )}
-                                            </div>
-                                        </div>
-                                    </CardHeader>
-
-                                    {outfit.description && (
-                                        <CardContent className="pt-0">
-                                            <p className="text-sm text-muted-foreground mb-3">
-                                                {outfit.description}
-                                            </p>
-                                        </CardContent>
-                                    )}
-
-                                    {outfit.tags && outfit.tags.length > 0 && (
-                                        <CardContent className="pt-0">
-                                            <div className="flex flex-wrap gap-2">
-                                                {outfit.tags.map((tag, index) => (
-                                                    <Badge key={index} variant="secondary">
-                                                        {tag}
-                                                    </Badge>
-                                                ))}
-                                            </div>
-                                        </CardContent>
-                                    )}
-
-                                    {outfit.items && outfit.items.length > 0 && (
-                                        <CardContent className="pt-0">
-                                            <div className="space-y-2">
-                                                <h4 className="text-sm font-medium">Items ({outfit.items.length})</h4>
-                                                <div className="grid grid-cols-1 md:grid-cols-2 gap-2">
-                                                    {outfit.items.slice(0, 4).map((item) => (
-                                                        <div key={item.id} className="text-sm text-muted-foreground">
-                                                            • {item.name} ({item.category.toLowerCase()})
-                                                        </div>
-                                                    ))}
-                                                    {outfit.items.length > 4 && (
-                                                        <div className="text-sm text-muted-foreground">
-                                                            +{outfit.items.length - 4} more items
-                                                        </div>
-                                                    )}
-                                                </div>
-                                            </div>
-                                        </CardContent>
-                                    )}
-                                </Card>
+                                <OutfitCard
+                                    key={outfit.id}
+                                    outfit={outfit}
+                                    showActions={true}
+                                    onShare={handleShare}
+                                    sharingOutfit={sharingOutfit}
+                                />
                             ))}
-                        </ul>
+                        </div>
                     )}
 
                     {/* Pagination Controls */}
