@@ -28,8 +28,14 @@ export const authOptions = {
           where: { email: credentials.email },
         });
 
-        if (!user || !user.password) {
-          throw new Error("User not found or invalid login method");
+        // Check if user exists
+        if (!user) {
+          throw new Error("User not found");
+        }
+
+        // Check if user has a password set
+        if (!user.password) {
+          throw new Error("This account was created with Google. Please sign in with Google or set a password first.");
         }
 
         const isCorrectPassword = await bcrypt.compare(
