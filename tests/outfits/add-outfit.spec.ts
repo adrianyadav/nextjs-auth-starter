@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { registerAndLogin, createOutfit } from '../utils';
+import { loginWithTestAccount, createOutfit } from '../utils';
 
 // Shared outfit data
 const getOutfitData = (isPrivate = false) => ({
@@ -23,8 +23,8 @@ const getOutfitData = (isPrivate = false) => ({
 
 test.describe('Add Outfit', () => {
     test.beforeEach(async ({ page }) => {
-        // Register and login before each test
-        await registerAndLogin(page);
+        // Login with existing test account before each test
+        await loginWithTestAccount(page);
     });
 
     test('should create a new outfit successfully', async ({ page }) => {

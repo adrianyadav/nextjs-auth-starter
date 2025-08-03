@@ -1,10 +1,10 @@
 import { test, expect } from '@playwright/test';
-import { registerAndLogin, loginWithCredentials } from './utils';
+import { createTestAccount, loginWithCredentials } from './utils';
 
 test.describe('Authentication', () => {
-    test('should register and login successfully', async ({ page }) => {
-        // Register and login
-        const { testEmail, testPassword, testName } = await registerAndLogin(page);
+    test('should create test account and login successfully', async ({ page }) => {
+        // Create the test account that will be used by other tests
+        const { testEmail, testPassword, testName } = await createTestAccount(page);
 
         // Verify user is logged in by checking for user-specific content
         await expect(page.locator('text=Save New Outfit')).toBeVisible();

@@ -17,6 +17,38 @@ export async function registerAndLogin(page: Page) {
     return { testEmail, testPassword, testName };
 }
 
+export async function loginWithTestAccount(page: Page) {
+    const testEmail = 'test@example.com';
+    const testPassword = 'password123';
+
+    // Login with existing test account
+    await page.goto('/login');
+    await page.fill('input[name="email"]', testEmail);
+    await page.fill('input[name="password"]', testPassword);
+    await page.click('button[type="submit"]');
+    await page.waitForLoadState('networkidle');
+    await page.waitForURL('/', { timeout: 10000 });
+
+    return { testEmail, testPassword, testName: 'Test User' };
+}
+
+export async function createTestAccount(page: Page) {
+    const testEmail = 'test@example.com';
+    const testPassword = 'password123';
+    const testName = 'Test User';
+
+    // Register the test account
+    await page.goto('/register');
+    await page.fill('input[name="name"]', testName);
+    await page.fill('input[name="email"]', testEmail);
+    await page.fill('input[name="password"]', testPassword);
+    await page.click('button[type="submit"]');
+    await page.waitForLoadState('networkidle');
+    await page.waitForURL('/', { timeout: 10000 });
+
+    return { testEmail, testPassword, testName };
+}
+
 export async function loginWithCredentials(page: Page, email: string, password: string) {
     await page.goto('/login');
     await page.fill('input[name="email"]', email);
