@@ -10,6 +10,7 @@ import { Menu, X } from "lucide-react";
 export default function Header() {
   const { data: session } = useSession();
   const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
+  const isDevelopment = process.env.NODE_ENV === 'development';
 
   const toggleMobileMenu = () => {
     setIsMobileMenuOpen(!isMobileMenuOpen);
@@ -56,6 +57,15 @@ export default function Header() {
             <Button asChild className="bg-gradient-royal hover:bg-gradient-royal-light text-white transition-all duration-300 transform hover:scale-105 shadow-md hover:shadow-lg">
               <Link href="/login">
                 Sign In
+              </Link>
+            </Button>
+          )}
+
+          {/* Development-only docs link */}
+          {isDevelopment && (
+            <Button asChild variant="outline" className="border-orange-300 text-orange-600 hover:bg-orange-50 transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md">
+              <Link href="/docs">
+                📚 Docs
               </Link>
             </Button>
           )}
@@ -132,6 +142,20 @@ export default function Header() {
               >
                 <Link href="/login">
                   Sign In
+                </Link>
+              </Button>
+            )}
+
+            {/* Development-only docs link for mobile */}
+            {isDevelopment && (
+              <Button
+                asChild
+                variant="outline"
+                className="w-full justify-center border-orange-300 text-orange-600 hover:bg-orange-50 transition-all duration-300 shadow-sm hover:shadow-md"
+                onClick={closeMobileMenu}
+              >
+                <Link href="/docs">
+                  📚 Docs
                 </Link>
               </Button>
             )}
