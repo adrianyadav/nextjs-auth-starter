@@ -5,7 +5,6 @@ import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { Button } from "@/components/ui/button";
 import OutfitCard from "@/components/ui/outfit-card";
-import Footer from "@/components/ui/footer";
 import prisma from "@/lib/prisma";
 
 // Define the outfit type
@@ -261,8 +260,7 @@ export default async function Home() {
         </div>
       </section>
 
-      {/* Footer */}
-      <Footer />
+      {/* Remove the Footer component from here */}
     </div>
   );
 }
