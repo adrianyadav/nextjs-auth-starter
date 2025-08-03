@@ -8,6 +8,9 @@ import { Badge } from "@/components/ui/badge";
 import { Share2, Lock, Eye, Tag, Shirt, Trash2 } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
+import { AdminDeleteButton } from "@/components/ui/admin-delete-button";
+import { useAdmin } from "@/hooks/use-admin";
+import { useSession } from "next-auth/react";
 
 interface OutfitItem {
     id: number;
@@ -28,6 +31,7 @@ interface OutfitCardProps {
         shareSlug?: string;
         createdAt: string;
         items: OutfitItem[];
+        userId?: string; // Add this to track ownership
     };
     showActions?: boolean;
     onShare?: (outfitId: number) => void;
@@ -35,6 +39,7 @@ interface OutfitCardProps {
     sharingOutfit?: number | null;
     deletingOutfit?: number | null;
     className?: string;
+    currentUserId?: string; // Add this to check ownership
 }
 
 export default function OutfitCard({
@@ -44,9 +49,12 @@ export default function OutfitCard({
     onDelete,
     sharingOutfit,
     deletingOutfit,
-    className = ""
+    className = "",
+    currentUserId
 }: OutfitCardProps) {
     const [showDeleteDialog, setShowDeleteDialog] = useState(false);
+    const { isAdmin, loading: adminLoading } = useAdmin();
+    const { data: session } = useSession();
 
     const handleDeleteClick = (e: React.MouseEvent) => {
         e.preventDefault();
@@ -60,13 +68,23 @@ export default function OutfitCard({
             setShowDeleteDialog(false);
         }
     };
+
+    const handleAdminDelete = () => {
+        // Refresh the page or trigger a re-fetch of outfits
+        window.location.reload();
+    };
+
+    // Check if current user owns this outfit
+    const isOwner = currentUserId && outfit.userId && currentUserId === outfit.userId;
+
     return (
         <Link
             href={showDeleteDialog ? "#" : `/outfits/${outfit.id}`}
             className="block"
             data-testid={`outfit-card-${outfit.id}`}
             onClick={(e) => {
-                if (showDeleteDialog) {
+                // Prevent navigation when any action button is clicked
+                if (showDeleteDialog || e.target instanceof HTMLButtonElement) {
                     e.preventDefault();
                 }
             }}
@@ -145,7 +163,8 @@ export default function OutfitCard({
                                         {sharingOutfit === outfit.id ? "Sharing..." : "Share"}
                                     </Button>
                                 )}
-                                {onDelete && (
+                                {/* Regular delete button - only for owner */}
+                                {onDelete && isOwner && (
                                     <Button
                                         variant="outline"
                                         size="sm"
@@ -157,6 +176,14 @@ export default function OutfitCard({
                                         <Trash2 className="h-4 w-4 mr-2" />
                                         {deletingOutfit === outfit.id ? "Deleting..." : "Delete"}
                                     </Button>
+                                )}
+                                {/* Admin Delete Button - Only show for public outfits when user is admin */}
+                                {!outfit.isPrivate && isAdmin && !adminLoading && (
+                                    <AdminDeleteButton
+                                        outfitId={outfit.id}
+                                        outfitName={outfit.name}
+                                        onDelete={handleAdminDelete}
+                                    />
                                 )}
                             </div>
                         )}

@@ -6,6 +6,8 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import OutfitCard from "@/components/ui/outfit-card";
 import { TShirtIcon } from '@/components/ui/tshirt-icon';
+import { useAdmin } from "@/hooks/use-admin";
+import { useSession } from "next-auth/react";
 
 interface OutfitItem {
     id: number;
@@ -34,31 +36,38 @@ export const dynamic = "force-dynamic";
 function OutfitsList() {
     const searchParams = useSearchParams();
     const page = parseInt(searchParams.get("page") || "1");
+    const { isAdmin, loading: adminLoading } = useAdmin();
+    const { data: session } = useSession();
 
     const [outfits, setOutfits] = useState<Outfit[]>([]);
     const [totalPages, setTotalPages] = useState(1);
     const [isLoading, setIsLoading] = useState(true);
 
-    useEffect(() => {
-        async function fetchOutfits() {
-            setIsLoading(true);
-            try {
-                const res = await fetch(`/api/outfits?page=${page}`);
-                if (!res.ok) {
-                    throw new Error("Failed to fetch outfits");
-                }
-                const data = await res.json();
-                setOutfits(data.outfits);
-                setTotalPages(data.totalPages);
-            } catch (error) {
-                console.error("Error fetching outfits:", error);
-            } finally {
-                setIsLoading(false);
+    const fetchOutfits = async () => {
+        setIsLoading(true);
+        try {
+            const res = await fetch(`/api/outfits?page=${page}`);
+            if (!res.ok) {
+                throw new Error("Failed to fetch outfits");
             }
+            const data = await res.json();
+            setOutfits(data.outfits);
+            setTotalPages(data.totalPages);
+        } catch (error) {
+            console.error("Error fetching outfits:", error);
+        } finally {
+            setIsLoading(false);
         }
+    };
 
+    useEffect(() => {
         fetchOutfits();
     }, [page]);
+
+    const handleAdminDelete = () => {
+        // Re-fetch the outfits list after admin delete
+        fetchOutfits();
+    };
 
     return (
         <>
@@ -97,7 +106,9 @@ function OutfitsList() {
                                             isPrivate: false,
                                             items: outfit.items || []
                                         }}
-                                        showActions={false}
+                                        showActions={isAdmin && !adminLoading}
+                                        onDelete={handleAdminDelete}
+                                        currentUserId={session?.user?.id}
                                     />
                                 </div>
                             ))}
@@ -167,4 +178,4 @@ export default function OutfitsPage() {
             </div>
         </div>
     );
-} 
+}

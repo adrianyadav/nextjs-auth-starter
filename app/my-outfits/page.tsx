@@ -6,6 +6,7 @@ import Link from "next/link";
 import { Button } from "@/components/ui/button";
 import OutfitCard from "@/components/ui/outfit-card";
 import { TShirtIcon } from '@/components/ui/tshirt-icon';
+import { useSession } from "next-auth/react";
 
 interface OutfitItem {
     id: number;
@@ -33,6 +34,7 @@ export const dynamic = "force-dynamic";
 function MyOutfitsList() {
     const searchParams = useSearchParams();
     const page = parseInt(searchParams.get("page") || "1");
+    const { data: session } = useSession();
 
     const [outfits, setOutfits] = useState<Outfit[]>([]);
     const [totalPages, setTotalPages] = useState(1);
@@ -153,6 +155,7 @@ function MyOutfitsList() {
                                         onDelete={handleDelete}
                                         sharingOutfit={sharingOutfit}
                                         deletingOutfit={deletingOutfit}
+                                        currentUserId={session?.user?.id}
                                     />
                                 </div>
                             ))}
