@@ -141,7 +141,7 @@ export async function createOutfit(page: Page, options: CreateOutfitOptions = {}
         await page.selectOption('select', item.category);
 
         if (item.description) {
-            await page.fill('input[placeholder="Optional description"]', item.description);
+            await page.fill('input[placeholder="Optional details about this item"]', item.description);
         }
 
         if (item.purchaseUrl) {
