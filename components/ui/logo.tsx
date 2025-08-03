@@ -50,18 +50,18 @@ export function Logo({
 
     const getIconClasses = () => {
         const baseClasses = getIconSize();
-        const colorClass = variant === 'footer' ? "text-white" : "";
+        const colorClass = (variant === 'footer' || variant === 'header') ? "text-white" : "";
         return `${baseClasses} ${colorClass} ${iconClassName}`;
     };
 
     const logoContent = (
         <>
-            <div className={`${variant === 'footer' ? 'w-8 h-8 bg-gradient-royal rounded-lg flex items-center justify-center' : ''}`}>
+            <div className={`${(variant === 'footer' || variant === 'header') ? 'w-8 h-8 bg-gradient-royal rounded-lg flex items-center justify-center' : ''}`}>
                 <Shirt className={getIconClasses()} />
             </div>
             {showText && (
-                <span className={getTextClasses()}>
-                    Outfit Save
+                <span className={getTextClasses()} style={{ letterSpacing: '3px' }}>
+                    OUTFIT SAVE
                 </span>
             )}
         </>

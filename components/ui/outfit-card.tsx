@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Share2, Lock, Eye, Calendar, Tag, Package } from "lucide-react";
+import { Share2, Lock, Eye, Calendar, Tag, Shirt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface OutfitItem {
@@ -90,12 +90,7 @@ export default function OutfitCard({
                                 {outfit.name}
                             </CardTitle>
                             <CardDescription className="mb-3 flex items-center gap-2 text-sm">
-                                <Calendar className="h-4 w-4" />
-                                {new Date(outfit.createdAt).toLocaleDateString("en-US", {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                })}
+                                {outfit.items.length} item{outfit.items.length !== 1 ? 's' : ''}
                             </CardDescription>
                         </div>
 
@@ -136,7 +131,7 @@ export default function OutfitCard({
                                 <Badge
                                     key={index}
                                     variant="secondary"
-                                    className="bg-royal/10 text-royal border border-royal/20 hover:bg-royal hover:text-white transition-all duration-300 transform hover:scale-105"
+                                    className="bg-royal/10 text-royal border border-royal/20 hover:bg-royal hover:text-royal-foreground transition-all duration-300 transform hover:scale-105"
                                 >
                                     {tag}
                                 </Badge>
@@ -148,7 +143,7 @@ export default function OutfitCard({
                     {outfit.items && outfit.items.length > 0 && (
                         <div className="space-y-3">
                             <div className="flex items-center gap-2 text-sm font-medium text-muted-foreground">
-                                <Package className="h-4 w-4" />
+                                <Shirt className="h-4 w-4" />
                                 <span>Outfit Details</span>
                             </div>
                             <div className="grid grid-cols-1 gap-2">

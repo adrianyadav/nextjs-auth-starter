@@ -98,11 +98,6 @@ export default async function Home() {
                 </>
               )}
             </div>
-
-            {/* Community Message */}
-            <div className="flex items-center justify-center text-sm text-muted-foreground animate-fade-in-up-delayed-3 mt-12">
-              <span>Be part of a growing fashion community</span>
-            </div>
           </div>
         </div>
 
