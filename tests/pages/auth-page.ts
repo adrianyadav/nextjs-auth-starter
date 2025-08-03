@@ -12,6 +12,7 @@ export class AuthPage {
     readonly registerLink: Locator;
     readonly loginLink: Locator;
     readonly logoutButton: Locator;
+    readonly googleSignInButton: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -25,6 +26,7 @@ export class AuthPage {
         this.registerLink = page.locator('[data-testid="register-link"]');
         this.loginLink = page.locator('[data-testid="login-link"]');
         this.logoutButton = page.locator('[data-testid="logout-button"], [data-testid="logout-button-mobile"]');
+        this.googleSignInButton = page.locator('[data-testid="google-signin-button"]');
     }
 
     // Navigation methods
@@ -77,6 +79,13 @@ export class AuthPage {
         await this.register(name, email, password);
         // Wait for navigation to home page after successful registration
         await this.page.waitForURL('/', { timeout: 10000 });
+    }
+
+    // Google OAuth methods
+    async clickGoogleSignIn() {
+        await this.googleSignInButton.click();
+        // Note: In a real test environment, you'd need to handle the Google OAuth flow
+        // This might involve mocking the OAuth response or using test credentials
     }
 
     // Navigation between auth pages

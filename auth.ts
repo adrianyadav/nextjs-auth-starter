@@ -1,10 +1,17 @@
 import CredentialsProvider from "next-auth/providers/credentials";
+import GoogleProvider from "next-auth/providers/google";
+import { PrismaAdapter } from "@auth/prisma-adapter";
 import { type NextAuthOptions } from "next-auth";
 import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export const authOptions = {
+  adapter: PrismaAdapter(prisma),
   providers: [
+    GoogleProvider({
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
+    }),
     CredentialsProvider({
       name: "credentials",
       credentials: {
@@ -21,8 +28,8 @@ export const authOptions = {
           where: { email: credentials.email },
         });
 
-        if (!user) {
-          throw new Error("User not found");
+        if (!user || !user.password) {
+          throw new Error("User not found or invalid login method");
         }
 
         const isCorrectPassword = await bcrypt.compare(
@@ -42,11 +49,20 @@ export const authOptions = {
     signIn: "/login",
   },
   callbacks: {
-    async jwt({ token, user }) {
-      return { ...token, id: token.id ?? user?.id };
+    async jwt({ token, user, account }) {
+      if (user) {
+        token.id = user.id;
+      }
+      return token;
     },
     async session({ session, token }) {
-      return { ...session, user: { ...session.user, id: token.id } };
+      if (token) {
+        session.user.id = token.id as string;
+      }
+      return session;
     },
+  },
+  session: {
+    strategy: "jwt",
   },
 } satisfies NextAuthOptions;

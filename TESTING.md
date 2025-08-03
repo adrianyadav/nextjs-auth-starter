@@ -34,6 +34,7 @@ Instead of relying on CSS classes or text content for test selectors, we use `da
 - `login-link` - Link to login page
 - `logout-button` - Logout button (desktop)
 - `logout-button-mobile` - Logout button (mobile)
+- `google-signin-button` - Google OAuth sign-in button
 
 #### Home Page Elements
 - `save-new-outfit-button` - Save new outfit button (logged in)

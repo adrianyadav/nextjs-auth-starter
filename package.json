@@ -12,9 +12,11 @@
     "test": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "test:headed": "playwright test --headed",
-    "test:debug": "playwright test --debug"
+    "test:debug": "playwright test --debug",
+    "db:reset": "./scripts/reset-db.sh"
   },
   "dependencies": {
+    "@auth/prisma-adapter": "^2.10.0",
     "@hookform/resolvers": "^5.2.1",
     "@prisma/client": "^6.5.0",
     "@prisma/extension-accelerate": "^1.2.1",
