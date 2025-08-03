@@ -1,7 +1,7 @@
 import Link from "next/link";
 import { Card, CardContent, CardDescription, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import { Share2, Lock, Eye, Calendar, Tag, Shirt } from "lucide-react";
+import { Share2, Lock, Eye, Tag, Shirt } from "lucide-react";
 import { Button } from "@/components/ui/button";
 
 interface OutfitItem {
