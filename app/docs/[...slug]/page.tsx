@@ -5,18 +5,18 @@ import Link from 'next/link';
 import MarkdownRenderer from '../components/MarkdownRenderer';
 
 interface DocsPageProps {
-    params: {
+    params: Promise<{
         slug: string[];
-    };
+    }>;
 }
 
-export default function DocsPage({ params }: DocsPageProps) {
+export default async function DocsPage({ params }: DocsPageProps) {
     // Only allow in development
     if (process.env.NODE_ENV === 'production') {
         notFound();
     }
 
-    const slug = params.slug;
+    const { slug } = await params;
     const fileName = slug[0] === 'README' ? 'README.md' : `${slug.join('/')}.md`;
 
     let content = '';
