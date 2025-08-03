@@ -63,6 +63,7 @@ interface CreateOutfitOptions {
     description?: string;
     tags?: string;
     isPrivate?: boolean;
+    imageUrl?: string;
     items?: Array<{
         name: string;
         category: string;
@@ -77,6 +78,7 @@ export async function createOutfit(page: Page, options: CreateOutfitOptions = {}
         description = 'A test outfit',
         tags = 'test',
         isPrivate = false,
+        imageUrl = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=400&fit=crop',
         items = [
             {
                 name: 'Test Shirt',
@@ -99,6 +101,14 @@ export async function createOutfit(page: Page, options: CreateOutfitOptions = {}
     await page.fill('input[name="name"]', name);
     await page.fill('textarea[name="description"]', description);
     await page.fill('input[name="tags"]', tags);
+
+    // Add image URL
+    if (imageUrl) {
+        // Click on URL mode button
+        await page.click('button:has-text("Image URL")');
+        // Fill in the image URL
+        await page.fill('input[type="url"]', imageUrl);
+    }
 
     // Set private status if needed
     if (isPrivate) {

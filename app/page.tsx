@@ -11,6 +11,20 @@ import OutfitCard from "@/components/ui/outfit-card";
 export default async function Home() {
   const session = await getServerSession(authOptions);
 
+  // Fetch some public outfits to showcase on the homepage
+  let showcaseOutfits = [];
+  try {
+    const outfitsResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/outfits?page=1&limit=6`, {
+      cache: 'no-store'
+    });
+    if (outfitsResponse.ok) {
+      const data = await outfitsResponse.json();
+      showcaseOutfits = data.outfits || [];
+    }
+  } catch (error) {
+    console.error('Error fetching showcase outfits:', error);
+  }
+
   return (
     <div className="min-h-screen bg-gradient-to-br from-background via-background to-muted/20">
       {/* Hero Section */}
@@ -116,69 +130,76 @@ export default async function Home() {
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="text-center mb-12">
             <h2 className="text-4xl font-bold text-foreground mb-4">
-              See What&apos;s Possible
+              {showcaseOutfits.length > 0 ? 'Featured Outfits' : 'See What\'s Possible'}
             </h2>
             <p className="text-xl text-muted-foreground">
-              Examples of how you can organize your outfits
+              {showcaseOutfits.length > 0
+                ? 'Real outfits from our community'
+                : 'Examples of how you can organize your outfits'
+              }
             </p>
           </div>
 
           <div className="grid gap-8 md:grid-cols-2 lg:grid-cols-3">
-            {/* Sample Outfit Cards */}
-            <OutfitCard
-              outfit={{
-                id: 1,
-                name: "Summer Casual",
-                description: "Perfect for warm days. Light cotton dress with sandals and a wide-brim hat",
-                imageUrl: undefined,
-                tags: ["casual", "summer", "dress"],
-                isPrivate: false,
-                shareSlug: undefined,
-                createdAt: new Date().toISOString(),
-                items: []
-              }}
-              showActions={false}
-            />
-
-            <Card className="overflow-hidden shadow-lg">
-              <div className="aspect-square bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
-                <svg className="w-16 h-16 text-blue-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <CardContent className="p-6">
-                <CardTitle className="text-xl mb-2">Business Meeting</CardTitle>
-                <CardDescription className="mb-3">Professional and polished</CardDescription>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Navy blazer, white blouse, and tailored pants
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">formal</Badge>
-                  <Badge variant="secondary">business</Badge>
-                  <Badge variant="secondary">professional</Badge>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="overflow-hidden shadow-lg">
-              <div className="aspect-square bg-gradient-to-br from-green-100 to-emerald-100 flex items-center justify-center">
-                <svg className="w-16 h-16 text-green-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
-                </svg>
-              </div>
-              <CardContent className="p-6">
-                <CardTitle className="text-xl mb-2">Weekend Brunch</CardTitle>
-                <CardDescription className="mb-3">Comfortable and stylish</CardDescription>
-                <p className="text-muted-foreground text-sm mb-4">
-                  Flowy top, high-waisted jeans, and ankle boots
-                </p>
-                <div className="flex flex-wrap gap-2">
-                  <Badge variant="secondary">casual</Badge>
-                  <Badge variant="secondary">weekend</Badge>
-                  <Badge variant="secondary">brunch</Badge>
-                </div>
-              </CardContent>
-            </Card>
+            {showcaseOutfits.length > 0 ? (
+              showcaseOutfits.map((outfit: any) => (
+                <OutfitCard
+                  key={outfit.id}
+                  outfit={{
+                    ...outfit,
+                    isPrivate: false,
+                    items: outfit.items || []
+                  }}
+                  showActions={false}
+                />
+              ))
+            ) : (
+              // Fallback sample outfits if no data is available
+              <>
+                <OutfitCard
+                  outfit={{
+                    id: 1,
+                    name: "Summer Casual",
+                    description: "Perfect for warm days. Light cotton dress with sandals and a wide-brim hat",
+                    imageUrl: "https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=400&fit=crop",
+                    tags: ["casual", "summer", "dress"],
+                    isPrivate: false,
+                    shareSlug: undefined,
+                    createdAt: new Date().toISOString(),
+                    items: []
+                  }}
+                  showActions={false}
+                />
+                <OutfitCard
+                  outfit={{
+                    id: 2,
+                    name: "Business Professional",
+                    description: "Classic business attire for important meetings and presentations",
+                    imageUrl: "https://images.unsplash.com/photo-1556909114-f6e7ad7d3136?w=400&h=400&fit=crop",
+                    tags: ["formal", "business", "professional"],
+                    isPrivate: false,
+                    shareSlug: undefined,
+                    createdAt: new Date().toISOString(),
+                    items: []
+                  }}
+                  showActions={false}
+                />
+                <OutfitCard
+                  outfit={{
+                    id: 3,
+                    name: "Weekend Brunch",
+                    description: "Comfortable and stylish outfit perfect for weekend brunches",
+                    imageUrl: "https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=400&fit=crop",
+                    tags: ["casual", "weekend", "brunch"],
+                    isPrivate: false,
+                    shareSlug: undefined,
+                    createdAt: new Date().toISOString(),
+                    items: []
+                  }}
+                  showActions={false}
+                />
+              </>
+            )}
           </div>
 
           <div className="text-center mt-12">

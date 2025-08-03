@@ -199,6 +199,9 @@ export default function ImageUpload({ onImageUpload, currentImageUrl, className 
                                         <p className="text-xs text-muted-foreground">
                                             Supports JPEG, PNG, WebP (max 5MB)
                                         </p>
+                                        <p className="text-xs text-primary font-medium">
+                                            ⚠️ Image is required to create an outfit
+                                        </p>
                                     </div>
                                     <Button
                                         type="button"
@@ -224,6 +227,9 @@ export default function ImageUpload({ onImageUpload, currentImageUrl, className 
                             />
                             <p className="text-xs text-muted-foreground">
                                 Enter a direct link to an image (JPEG, PNG, WebP, GIF)
+                            </p>
+                            <p className="text-xs text-primary font-medium">
+                                ⚠️ Image is required to create an outfit
                             </p>
                         </div>
                     )}

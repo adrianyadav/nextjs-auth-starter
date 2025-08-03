@@ -65,6 +65,18 @@ export default function NewOutfitPage() {
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+        
+        // Validate required fields
+        if (!formData.name.trim()) {
+            alert("Please enter an outfit name.");
+            return;
+        }
+        
+        if (!formData.imageUrl?.trim()) {
+            alert("Please upload an image or provide an image URL. Images are required to help visualize your outfit.");
+            return;
+        }
+        
         setIsLoading(true);
 
         try {
@@ -86,11 +98,12 @@ export default function NewOutfitPage() {
             if (response.ok) {
                 router.push("/outfits");
             } else {
-                throw new Error("Failed to create outfit");
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Failed to create outfit");
             }
         } catch (error) {
             console.error("Error creating outfit:", error);
-            alert("Failed to create outfit. Please try again.");
+            alert(error instanceof Error ? error.message : "Failed to create outfit. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -150,7 +163,7 @@ export default function NewOutfitPage() {
                                 </div>
 
                                 <div className="space-y-2">
-                                    <Label>Outfit Image</Label>
+                                    <Label>Outfit Image *</Label>
                                     <ImageUpload
                                         onImageUpload={(imageUrl) => {
                                             setFormData({
@@ -160,6 +173,9 @@ export default function NewOutfitPage() {
                                         }}
                                         currentImageUrl={formData.imageUrl}
                                     />
+                                    <CardDescription>
+                                        An image is required to help visualize your outfit. Upload a photo or provide an image URL.
+                                    </CardDescription>
                                 </div>
 
                                 <div className="space-y-2">
