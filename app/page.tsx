@@ -6,6 +6,7 @@ import { authOptions } from "@/auth";
 import { Button } from "@/components/ui/button";
 import OutfitCard from "@/components/ui/outfit-card";
 import Footer from "@/components/ui/footer";
+import prisma from "@/lib/prisma";
 
 // Define the outfit type
 interface Outfit {
@@ -32,13 +33,41 @@ export default async function Home() {
   // Fetch some public outfits to showcase on the homepage
   let showcaseOutfits: Outfit[] = [];
   try {
-    const outfitsResponse = await fetch(`${process.env.NEXTAUTH_URL || 'http://localhost:3000'}/api/outfits?page=1&limit=6`, {
-      cache: 'no-store'
+    const outfits = await prisma.outfit.findMany({
+      where: {
+        isPrivate: false,
+      },
+      include: {
+        user: {
+          select: {
+            name: true,
+          },
+        },
+        items: true,
+      },
+      orderBy: {
+        createdAt: 'desc',
+      },
+      take: 6,
     });
-    if (outfitsResponse.ok) {
-      const data = await outfitsResponse.json();
-      showcaseOutfits = data.outfits || [];
-    }
+
+    showcaseOutfits = outfits.map(outfit => ({
+      id: outfit.id,
+      name: outfit.name,
+      description: outfit.description,
+      imageUrl: outfit.imageUrl,
+      tags: outfit.tags,
+      isPrivate: outfit.isPrivate,
+      shareSlug: outfit.shareSlug,
+      createdAt: outfit.createdAt.toISOString(),
+      items: outfit.items.map(item => ({
+        id: item.id,
+        name: item.name,
+        category: item.category,
+        description: item.description,
+        purchaseUrl: item.purchaseUrl,
+      })),
+    }));
   } catch (error) {
     console.error('Error fetching showcase outfits:', error);
   }
