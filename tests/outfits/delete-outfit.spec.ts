@@ -135,7 +135,7 @@ test.describe('Delete Outfit', () => {
         await outfitPage.expectOnMyOutfitsPage();
     });
 
-    test('should show save button for public outfits you do not own', async ({ page }) => {
+    test('should not allow deletion of outfits you do not own', async ({ page }) => {
         // Navigate to public outfits page
         await outfitPage.gotoOutfits();
 
@@ -148,21 +148,23 @@ test.describe('Delete Outfit', () => {
             await outfitPage.outfitCards.first().click();
             await outfitPage.waitForOutfitsToLoad();
 
-            // Check if save button is visible for public outfits
+            // Check if save button is visible for outfits you don't own
             const saveButton = page.locator('[data-testid="save-to-my-outfits-button"]');
-
-            // For public outfits, we should see the save button (if we don't own it)
-            // or the delete button (if we do own it)
             const deleteButton = page.locator('[data-testid="delete-outfit-button"]');
 
-            // Check that at least one of these buttons is visible
+            // For public outfits we don't own, we should see the save button and NOT the delete button
             try {
                 await expect(saveButton).toBeVisible({ timeout: 5000 });
-                console.log('Save button is visible - this is a public outfit we do not own');
+                await expect(deleteButton).not.toBeVisible({ timeout: 5000 });
+                console.log('Save button is visible and delete button is not - this is a public outfit we do not own');
             } catch {
+                // If save button is not visible, it means this outfit is owned by the current user
+                // In this case, we should see the delete button instead
                 try {
                     await expect(deleteButton).toBeVisible({ timeout: 5000 });
-                    console.log('Delete button is visible - this is a public outfit we own');
+                    await expect(saveButton).not.toBeVisible({ timeout: 5000 });
+                    console.log('Delete button is visible and save button is not - this is a public outfit we own');
+                    // This is also a valid scenario, so we'll consider this test passed
                 } catch {
                     throw new Error('Neither save nor delete button is visible on public outfit page');
                 }

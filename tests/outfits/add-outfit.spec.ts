@@ -41,16 +41,6 @@ test.describe('Add Outfit', () => {
         const { name: outfitName } = await createOutfit(page, getOutfitData(false));
         createdOutfits.push(outfitName);
 
-        // Wait for any toast notifications to appear and disappear
-        try {
-            const toast = page.locator('[role="status"]');
-            await expect(toast.first()).toBeVisible({ timeout: 3000 });
-            await expect(toast.first()).not.toBeVisible({ timeout: 6000 });
-        } catch {
-            // Toast might not appear or disappear as expected, that's okay
-            console.log('Toast notification check skipped');
-        }
-
         // Verify the outfit was created
         await expect(page.locator(`text=${outfitName}`)).toBeVisible();
     });
@@ -67,29 +57,27 @@ test.describe('Add Outfit', () => {
             await page.goto('/my-outfits');
         }
 
-        // Wait for any toast notifications to appear and disappear
-        try {
-            const toast = page.locator('[role="status"]');
-            await expect(toast.first()).toBeVisible({ timeout: 3000 });
-            await expect(toast.first()).not.toBeVisible({ timeout: 6000 });
-        } catch {
-            // Toast might not appear or disappear as expected, that's okay
-            console.log('Toast notification check skipped');
-        }
-
-        // Debug: Check what's actually on the page
-        console.log('Looking for outfit:', outfitName);
-        console.log('Is private:', isPrivate);
-        console.log('Current URL:', page.url());
-
-        // Wait a bit longer and check page content
-        await page.waitForTimeout(2000);
-
-        // Get all outfit names on the page for debugging
-        const outfitElements = await page.locator('a[href*="/outfits/"]').allTextContents();
-        console.log('Outfits found on page:', outfitElements);
-
         // Verify the outfit was created
         await expect(page.locator(`text=${outfitName}`)).toBeVisible();
+    });
+
+    test('should navigate to create outfit page when clicking Create New Outfit button', async ({ page }) => {
+        // First create an outfit so we have outfits to display
+        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        createdOutfits.push(outfitName);
+
+        // Navigate to my outfits page
+        await page.goto('/my-outfits');
+        await page.waitForLoadState('networkidle');
+
+        // Verify the Create New Outfit button is visible
+        const createButton = page.locator('[data-testid="create-new-outfit-button"]');
+        await expect(createButton).toBeVisible();
+
+        // Click the Create New Outfit button
+        await createButton.click();
+
+        // Verify we navigated to the create outfit page
+        await expect(page).toHaveURL('/outfits/new');
     });
 }); 
