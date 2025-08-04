@@ -87,7 +87,7 @@ export default function SettingsPage() {
                     variant: "destructive",
                 });
             }
-        } catch (error) {
+        } catch {
             toast({
                 title: "Error",
                 description: "Failed to set password",

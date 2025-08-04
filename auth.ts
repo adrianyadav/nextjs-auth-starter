@@ -6,7 +6,8 @@ import prisma from "@/lib/prisma";
 import bcrypt from "bcryptjs";
 
 export const authOptions = {
-  adapter: PrismaAdapter(prisma),
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  adapter: PrismaAdapter(prisma) as any,
   providers: [
     GoogleProvider({
       clientId: process.env.GOOGLE_CLIENT_ID!,
@@ -67,7 +68,7 @@ export const authOptions = {
     error: "/login", // Redirect to login page on auth errors
   },
   callbacks: {
-    async signIn({ user, account, profile }) {
+    async signIn({ user, account }) {
       // Handle Google sign-in
       if (account?.provider === 'google') {
         // Check if user already exists with this email
@@ -93,12 +94,12 @@ export const authOptions = {
 
       return true;
     },
-    async jwt({ token, user, account }) {
+    async jwt({ token, user, }) {
       if (user) {
         token.id = user.id;
-        token.email = user.email;
-        token.name = user.name;
-        token.image = user.image;
+        token.email = user.email || undefined;
+        token.name = user.name || undefined;
+        token.image = user.image || undefined;
       }
       return token;
     },

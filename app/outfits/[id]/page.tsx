@@ -199,7 +199,7 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                                     disabled={isDeleting}
                                     className="sm:flex-none"
                                 >
-                                    Delete Outfit
+                                    Delete
                                 </Button>
                             ) : (
                                 !outfit.isPrivate && (
@@ -210,7 +210,7 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                                         disabled={isSaving}
                                         className="bg-royal hover:bg-royal/90 sm:flex-none"
                                     >
-                                        {isSaving ? "Saving..." : "Save to My Outfits"}
+                                        {isSaving ? "Saving..." : "Save"}
                                     </Button>
                                 )
                             )}

@@ -108,7 +108,7 @@ export class OutfitPage {
             // Wait for toast to appear (shadcn/ui toast)
             await expect(this.toastNotifications.first()).toBeVisible({ timeout: 5000 });
         } catch (error) {
-            console.log('Toast notification did not appear as expected:', error.message);
+            console.log('Toast notification did not appear as expected:', error instanceof Error ? error.message : String(error));
         }
     }
 
@@ -117,15 +117,15 @@ export class OutfitPage {
             // Wait for toast to disappear (auto-dismiss after 5 seconds)
             await expect(this.toastNotifications.first()).not.toBeVisible({ timeout: 6000 });
         } catch (error) {
-            console.log('Toast notification did not disappear as expected:', error.message);
+            console.log('Toast notification did not disappear as expected:', error instanceof Error ? error.message : String(error));
         }
     }
 
     async expectToastWithText(text: string) {
         try {
-            await expect(this.toastNotifications.filter({ hasText })).toBeVisible({ timeout: 5000 });
+            await expect(this.toastNotifications.filter({ hasText: text })).toBeVisible({ timeout: 5000 });
         } catch (error) {
-            console.log(`Toast with text "${text}" did not appear as expected:`, error.message);
+            console.log(`Toast with text "${text}" did not appear as expected:`, error instanceof Error ? error.message : String(error));
         }
     }
 

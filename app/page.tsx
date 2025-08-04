@@ -27,7 +27,8 @@ interface Outfit {
 }
 
 export default async function Home() {
-  const session = await getServerSession(authOptions);
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const session = await getServerSession(authOptions as any) as any;
 
   // Fetch some public outfits to showcase on the homepage
   let showcaseOutfits: Outfit[] = [];

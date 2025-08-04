@@ -284,26 +284,40 @@ export async function cleanupTestOutfits(page: Page, outfitNames: string[]) {
         try {
             // Navigate to my outfits page
             await page.goto('/my-outfits');
+            await page.waitForLoadState('networkidle');
 
-            // Find and click delete button for the specific outfit
+            // Find the outfit card and click on it to go to detail page
             const outfitCard = page.locator('a[href*="/outfits/"]').filter({ hasText: outfitName });
-            const deleteButton = outfitCard.locator('button').filter({ hasText: 'Delete' });
 
-            if (await deleteButton.isVisible()) {
-                await deleteButton.click();
-
-                // Confirm deletion
-                await page.locator('[data-testid="confirm-dialog-confirm"]').click();
-
-                // Wait for deletion to complete
+            if (await outfitCard.isVisible({ timeout: 5000 })) {
+                await outfitCard.click();
                 await page.waitForLoadState('networkidle');
 
-                // Wait for toast notification
-                await waitForToastAndDismiss(page);
+                // Look for delete button in the header (not in the card)
+                const deleteButton = page.locator('button').filter({ hasText: 'Delete Outfit' });
 
-                console.log(`✅ Deleted outfit: ${outfitName}`);
+                if (await deleteButton.isVisible({ timeout: 5000 })) {
+                    await deleteButton.click();
+
+                    // Wait for confirmation dialog
+                    await page.locator('[data-testid="confirm-dialog-title"]').waitFor({ timeout: 5000 });
+
+                    // Confirm deletion
+                    await page.locator('[data-testid="confirm-dialog-confirm"]').click();
+
+                    // Wait for deletion to complete and redirect
+                    await page.waitForURL(/.*\/my-outfits/, { timeout: 10000 });
+                    await page.waitForLoadState('networkidle');
+
+                    // Wait for toast notification
+                    await waitForToastAndDismiss(page);
+
+                    console.log(`✅ Deleted outfit: ${outfitName}`);
+                } else {
+                    console.log(`⚠️  Delete button not found for outfit: ${outfitName}`);
+                }
             } else {
-                console.log(`⚠️  Outfit not found for deletion: ${outfitName}`);
+                console.log(`⚠️  Outfit card not found: ${outfitName}`);
             }
         } catch (error) {
             console.error(`❌ Failed to delete outfit ${outfitName}:`, error);
