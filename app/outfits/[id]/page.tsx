@@ -10,6 +10,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/com
 import { Badge } from "@/components/ui/badge";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 import { useToast } from "@/components/ui/use-toast";
+import { ArrowLeft } from "lucide-react";
 
 interface OutfitItem {
     id: number;
@@ -182,38 +183,41 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
             <div className="w-full max-w-4xl">
                 <Card>
                     <CardHeader>
-                        <div className="flex justify-between items-start">
-                            <CardTitle className="text-4xl">{outfit.name}</CardTitle>
-                            <div className="flex gap-2">
-                                <Button asChild variant="outline">
-                                    <Link href="/my-outfits" data-testid="back-to-my-outfits">
-                                        Back to My Outfits
-                                    </Link>
+                        {/* Action Buttons - Auto-fit 2 columns, wrap to 1 when no space */}
+                        <div className="grid grid-cols-[repeat(auto-fit,minmax(200px,1fr))] sm:flex sm:flex-row gap-2 mb-4">
+                            <Button asChild variant="outline" className="sm:flex-none">
+                                <Link href="/my-outfits" data-testid="back-to-my-outfits" className="flex items-center gap-2">
+                                    <ArrowLeft className="h-4 w-4" />
+                                    Back
+                                </Link>
+                            </Button>
+                            {isOwned ? (
+                                <Button
+                                    data-testid="delete-outfit-button"
+                                    variant="destructive"
+                                    onClick={() => setShowDeleteDialog(true)}
+                                    disabled={isDeleting}
+                                    className="sm:flex-none"
+                                >
+                                    Delete Outfit
                                 </Button>
-                                {isOwned ? (
+                            ) : (
+                                !outfit.isPrivate && (
                                     <Button
-                                        data-testid="delete-outfit-button"
-                                        variant="destructive"
-                                        onClick={() => setShowDeleteDialog(true)}
-                                        disabled={isDeleting}
+                                        data-testid="save-to-my-outfits-button"
+                                        variant="default"
+                                        onClick={handleSaveOutfit}
+                                        disabled={isSaving}
+                                        className="bg-royal hover:bg-royal/90 sm:flex-none"
                                     >
-                                        Delete Outfit
+                                        {isSaving ? "Saving..." : "Save to My Outfits"}
                                     </Button>
-                                ) : (
-                                    !outfit.isPrivate && (
-                                        <Button
-                                            data-testid="save-to-my-outfits-button"
-                                            variant="default"
-                                            onClick={handleSaveOutfit}
-                                            disabled={isSaving}
-                                            className="bg-royal hover:bg-royal/90"
-                                        >
-                                            {isSaving ? "Saving..." : "Save to My Outfits"}
-                                        </Button>
-                                    )
-                                )}
-                            </div>
+                                )
+                            )}
                         </div>
+
+                        {/* Title */}
+                        <CardTitle className="text-4xl">{outfit.name}</CardTitle>
                     </CardHeader>
                     <CardContent className="space-y-6">
                         {outfit.imageUrl && (

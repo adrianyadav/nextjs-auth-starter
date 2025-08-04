@@ -40,9 +40,7 @@ export default function Header() {
                 </Link>
               </Button>
               <div className="flex items-center space-x-4">
-                <div className="text-sm px-3 py-2">
-                  {session.user?.name && <div className="font-medium">{session.user.name}</div>}
-                </div>
+
                 <Button asChild variant="outline" className="border-royal/30 text-royal hover:bg-royal hover:text-white transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md">
                   <Link href="/settings">
                     Settings
@@ -56,6 +54,9 @@ export default function Header() {
                 >
                   Sign Out
                 </Button>
+              </div>
+              <div className="text-sm px-3 py-2">
+                Welcome, {session.user?.name && <div className="font-medium">{session.user.name}</div>}
               </div>
             </>
           ) : (
@@ -119,11 +120,7 @@ export default function Header() {
                 </Button>
 
                 <div className="space-y-4">
-                  {session.user?.name && (
-                    <div className="text-center py-2 px-3 rounded-md">
-                      <div className="font-medium text-sm">{session.user.name}</div>
-                    </div>
-                  )}
+
                   <Button
                     asChild
                     variant="outline"
