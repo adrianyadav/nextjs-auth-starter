@@ -4,7 +4,7 @@
   "private": true,
   "description": "A fashion app where users can save and organize their outfits",
   "scripts": {
-    "dev": "next dev --turbopack",
+    "dev": "npm run db:start && npm run db:wait && next dev --turbopack",
     "build": "npx prisma migrate deploy || [ \"$DATABASE_URL\" = \"prisma+postgres://accelerate.prisma-data.net/?api_key=API_KEY\" ] && next build",
     "start": "next start",
     "lint": "next lint",
@@ -16,6 +16,8 @@
     "db:reset": "./scripts/reset-db.sh",
     "db:cleanup": "npx tsx scripts/cleanup-test-data.ts",
     "db:cleanup:outfits": "npx tsx scripts/delete-test-outfits.ts",
+    "db:start": "chmod +x scripts/start-db.sh && ./scripts/start-db.sh",
+    "db:wait": "npx wait-on tcp:5432",
     "storybook": "storybook dev -p 6006",
     "build-storybook": "storybook build"
   },
@@ -69,7 +71,8 @@
     "tailwindcss": "^3.4.1",
     "tsx": "^4.19.2",
     "typescript": "^5",
-    "vitest": "^3.2.4"
+    "vitest": "^3.2.4",
+    "wait-on": "^8.0.4"
   },
   "prisma": {
     "seed": "npx tsx prisma/seed.ts"
