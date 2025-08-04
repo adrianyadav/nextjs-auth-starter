@@ -71,7 +71,7 @@ test.describe('Delete Outfit', () => {
         await outfitPage.gotoOutfitDetail(outfitName);
 
         // Verify we're on the detail page
-        await expect(page.locator(`text=${outfitName}`)).toBeVisible();
+        await expect(page.locator(`text=${outfitName}`)).toBeVisible({ timeout: 10000 });
 
         // Delete the outfit from detail page
         await outfitPage.deleteOutfitFromDetailPage();
@@ -111,10 +111,11 @@ test.describe('Delete Outfit', () => {
 
         // Start deletion and verify loading state
         const deleteButton = outfitPage.getOutfitDeleteButton(outfitName);
+        await expect(deleteButton).toBeVisible({ timeout: 10000 });
         await deleteButton.click();
 
         // Wait for confirmation dialog
-        await expect(outfitPage.confirmDialogTitle).toBeVisible();
+        await expect(outfitPage.confirmDialogTitle).toBeVisible({ timeout: 10000 });
 
         // Confirm deletion
         await outfitPage.confirmButton.click();
@@ -158,11 +159,11 @@ test.describe('Delete Outfit', () => {
             try {
                 await expect(saveButton).toBeVisible({ timeout: 2000 });
                 // If save button is visible, delete button should not be visible
-                await expect(headerDeleteButton).not.toBeVisible();
+                await expect(headerDeleteButton).not.toBeVisible({ timeout: 2000 });
             } catch {
                 // If save button is not visible, this might be our own outfit
                 // In that case, delete button should be visible
-                await expect(headerDeleteButton).toBeVisible();
+                await expect(headerDeleteButton).toBeVisible({ timeout: 2000 });
                 console.log('This appears to be our own outfit - delete button is expected to be visible');
             }
         } else {

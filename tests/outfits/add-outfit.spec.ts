@@ -41,6 +41,16 @@ test.describe('Add Outfit', () => {
         const { name: outfitName } = await createOutfit(page, getOutfitData(false));
         createdOutfits.push(outfitName);
 
+        // Wait for any toast notifications to appear and disappear
+        try {
+            const toast = page.locator('[role="status"]');
+            await expect(toast.first()).toBeVisible({ timeout: 3000 });
+            await expect(toast.first()).not.toBeVisible({ timeout: 6000 });
+        } catch {
+            // Toast might not appear or disappear as expected, that's okay
+            console.log('Toast notification check skipped');
+        }
+
         // Verify the outfit was created
         await expect(page.locator(`text=${outfitName}`)).toBeVisible();
     });
@@ -55,6 +65,16 @@ test.describe('Add Outfit', () => {
         // For private outfits, check the my-outfits page
         if (isPrivate) {
             await page.goto('/my-outfits');
+        }
+
+        // Wait for any toast notifications to appear and disappear
+        try {
+            const toast = page.locator('[role="status"]');
+            await expect(toast.first()).toBeVisible({ timeout: 3000 });
+            await expect(toast.first()).not.toBeVisible({ timeout: 6000 });
+        } catch {
+            // Toast might not appear or disappear as expected, that's okay
+            console.log('Toast notification check skipped');
         }
 
         // Debug: Check what's actually on the page

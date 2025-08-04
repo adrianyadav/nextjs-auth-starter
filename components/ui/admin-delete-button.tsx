@@ -4,6 +4,7 @@ import { useState } from 'react';
 import { Button } from './button';
 import ConfirmDialog from './confirm-dialog';
 import { Trash2 } from 'lucide-react';
+import { useToast } from './use-toast';
 
 interface AdminDeleteButtonProps {
     outfitId: number;
@@ -14,6 +15,7 @@ interface AdminDeleteButtonProps {
 export function AdminDeleteButton({ outfitId, outfitName, onDelete }: AdminDeleteButtonProps) {
     const [isDeleting, setIsDeleting] = useState(false);
     const [showConfirmDialog, setShowConfirmDialog] = useState(false);
+    const { toast } = useToast();
 
     const handleDelete = async () => {
         if (isDeleting) return;
@@ -31,15 +33,27 @@ export function AdminDeleteButton({ outfitId, outfitName, onDelete }: AdminDelet
             if (response.ok) {
                 const data = await response.json();
                 console.log('Admin delete successful:', data.message);
+                toast({
+                    title: "Success",
+                    description: "Outfit deleted successfully",
+                });
                 onDelete?.();
             } else {
-                const error = await response.json();
-                console.error('Admin delete failed:', error);
-                alert(error.error || 'Failed to delete outfit');
+                const errorData = await response.json();
+                console.error('Admin delete failed:', errorData);
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: errorData.error || "Failed to delete outfit",
+                });
             }
-        } catch (error) {
-            console.error('Error deleting outfit:', error);
-            alert('Failed to delete outfit');
+        } catch (err) {
+            console.error('Error deleting outfit:', err);
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Failed to delete outfit. Please try again later.",
+            });
         } finally {
             setIsDeleting(false);
             setShowConfirmDialog(false);

@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import OutfitCard from "@/components/ui/outfit-card";
 import { TShirtIcon } from '@/components/ui/tshirt-icon';
 import { useSession } from "next-auth/react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface OutfitItem {
     id: number;
@@ -35,6 +36,7 @@ function MyOutfitsList() {
     const searchParams = useSearchParams();
     const page = parseInt(searchParams.get("page") || "1");
     const { data: session } = useSession();
+    const { toast } = useToast();
 
     const [outfits, setOutfits] = useState<Outfit[]>([]);
     const [totalPages, setTotalPages] = useState(1);
@@ -75,14 +77,24 @@ function MyOutfitsList() {
             if (response.ok) {
                 const { shareUrl } = await response.json();
                 await navigator.clipboard.writeText(shareUrl);
-                alert("Share link copied to clipboard!");
+                toast({
+                    title: "Success",
+                    description: "Share link copied to clipboard!",
+                });
             } else {
-                const error = await response.json();
-                alert(error.error || "Failed to generate share link");
+                const errorData = await response.json();
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: errorData.error || "Failed to generate share link",
+                });
             }
-        } catch (error) {
-            console.error("Error sharing outfit:", error);
-            alert("Failed to share outfit");
+        } catch {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Failed to share outfit. Please try again later.",
+            });
         } finally {
             setSharingOutfit(null);
         }
@@ -106,12 +118,24 @@ function MyOutfitsList() {
                 setOutfits(prevOutfits => prevOutfits.filter(outfit => outfit.id !== outfitId));
                 // Ensure we stay on the my-outfits page
                 window.location.href = "/my-outfits";
+                toast({
+                    title: "Success",
+                    description: "Outfit deleted successfully!",
+                });
             } else {
-                const error = await response.json();
-                alert(error.error || "Failed to delete outfit");
+                const errorData = await response.json();
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: errorData.error || "Failed to delete outfit",
+                });
             }
-        } catch (error) {
-            console.error("Error deleting outfit:", error);
+        } catch {
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Failed to delete outfit. Please try again later.",
+            });
         } finally {
             setDeletingOutfit(null);
         }
@@ -120,9 +144,9 @@ function MyOutfitsList() {
     return (
         <>
             {isLoading ? (
-                <div className="flex items-center justify-center space-x-2 min-h-[200px]">
-                    <div data-testid="loading-spinner" className="w-6 h-6 border-4 border-royal border-t-transparent rounded-full animate-spin"></div>
-                    <p className="text-muted-foreground">Loading...</p>
+                <div className="flex items-center justify-center min-h-[200px]">
+                    <div data-testid="loading-spinner" className="w-10 h-10 border-4 border-royal border-t-transparent rounded-full animate-spin"></div>
+                    <p className="ml-3 text-muted-foreground">Loading your outfits...</p>
                 </div>
             ) : (
                 <>
@@ -208,33 +232,19 @@ export default function MyOutfitsPage() {
                         My <span className="text-gradient-royal">Outfits</span>
                     </h1>
                     <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">
-                        Manage your outfits, organize your style, and share your fashion journey with others
+                        Manage and organize your personal fashion collection. Create, edit, and share your favorite styles.
                     </p>
                 </div>
 
-                {/* Action Bar */}
-                <div className="mb-12">
-                    <Button asChild size="lg" className="text-lg px-8 py-6 bg-gradient-royal hover:bg-gradient-royal-light shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105 text-white">
-                        <Link href="/outfits/new" className="flex items-center gap-2">
-                            <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
-                            </svg>
-                            Create New Outfit
-                        </Link>
-                    </Button>
-                </div>
-
-                <Suspense
-                    fallback={
-                        <div className="flex items-center justify-center min-h-[200px]">
-                            <div className="w-10 h-10 border-4 border-royal border-t-transparent rounded-full animate-spin"></div>
-                            <p className="ml-3 text-muted-foreground">Loading outfits...</p>
-                        </div>
-                    }
-                >
+                <Suspense fallback={
+                    <div className="flex items-center justify-center min-h-[200px]">
+                        <div className="w-10 h-10 border-4 border-royal border-t-transparent rounded-full animate-spin"></div>
+                        <p className="ml-3 text-muted-foreground">Loading your outfits...</p>
+                    </div>
+                }>
                     <MyOutfitsList />
                 </Suspense>
             </div>
         </div>
     );
-} 
+}

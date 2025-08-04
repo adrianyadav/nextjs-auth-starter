@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
+import { useToast } from "@/components/ui/use-toast";
 
 interface OutfitItem {
     id: number;
@@ -42,6 +43,7 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
     const [isDeleting, setIsDeleting] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isOwned, setIsOwned] = useState(false);
+    const { toast } = useToast();
 
     useEffect(() => {
         async function fetchOutfit() {
@@ -86,6 +88,10 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
             if (response.ok) {
                 // Redirect to my-outfits page after successful deletion
                 console.log("Deletion successful, redirecting to /my-outfits");
+                toast({
+                    title: "Success",
+                    description: "Outfit deleted successfully!",
+                });
                 // Try multiple redirect methods
                 try {
                     router.push("/my-outfits");
@@ -94,13 +100,21 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                     window.location.href = "/my-outfits";
                 }
             } else {
-                const error = await response.json();
-                console.error("Delete failed:", error);
-                alert(error.error || "Failed to delete outfit");
+                const errorData = await response.json();
+                console.error("Delete failed:", errorData);
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: errorData.error || "Failed to delete outfit",
+                });
             }
-        } catch (error) {
-            console.error("Error deleting outfit:", error);
-            alert("Failed to delete outfit");
+        } catch (err) {
+            console.error("Error deleting outfit:", err);
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Failed to delete outfit. Please try again later.",
+            });
         } finally {
             setIsDeleting(false);
             setShowDeleteDialog(false);
@@ -121,14 +135,26 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
             });
 
             if (response.ok) {
+                toast({
+                    title: "Success",
+                    description: "Outfit saved successfully!",
+                });
                 router.push("/my-outfits");
             } else {
-                const error = await response.json();
-                alert(error.error || "Failed to save outfit");
+                const errorData = await response.json();
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: errorData.error || "Failed to save outfit",
+                });
             }
-        } catch (error) {
-            console.error("Error saving outfit:", error);
-            alert("Failed to save outfit");
+        } catch (err) {
+            console.error("Error saving outfit:", err);
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Failed to save outfit. Please try again later.",
+            });
         } finally {
             setIsSaving(false);
         }

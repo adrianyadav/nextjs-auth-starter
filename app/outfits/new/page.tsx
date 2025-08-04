@@ -11,6 +11,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import { Checkbox } from "@/components/ui/checkbox";
 import ImageUpload from "@/components/ui/image-upload";
 import { Plus, X, Shirt, PersonStanding } from "lucide-react";
+import { useToast } from "@/components/ui/use-toast";
 
 interface OutfitItem {
     name: string;
@@ -30,6 +31,7 @@ export default function NewOutfitPage() {
         isPrivate: true,
     });
     const [items, setItems] = useState<OutfitItem[]>([]);
+    const { toast } = useToast();
 
     const itemCategories = [
         { value: "HEADWEAR", label: "Headwear" },
@@ -68,12 +70,18 @@ export default function NewOutfitPage() {
 
         // Validate required fields
         if (!formData.name.trim()) {
-            alert("Please enter an outfit name.");
+            toast({
+                title: "Missing outfit name",
+                description: "Please enter an outfit name.",
+            });
             return;
         }
 
         if (!formData.imageUrl?.trim()) {
-            alert("Please upload an image or provide an image URL. Images are required to help visualize your outfit.");
+            toast({
+                title: "Missing image",
+                description: "Please upload an image or provide an image URL. Images are required to help visualize your outfit.",
+            });
             return;
         }
 
@@ -99,11 +107,19 @@ export default function NewOutfitPage() {
                 router.push("/my-outfits");
             } else {
                 const errorData = await response.json();
-                throw new Error(errorData.error || "Failed to create outfit");
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: errorData.error || "Failed to create outfit. Please try again.",
+                });
             }
         } catch (error) {
             console.error("Error creating outfit:", error);
-            alert(error instanceof Error ? error.message : "Failed to create outfit. Please try again.");
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: error instanceof Error ? error.message : "Failed to create outfit. Please try again.",
+            });
         } finally {
             setIsLoading(false);
         }
@@ -160,6 +176,7 @@ export default function NewOutfitPage() {
                                             onChange={handleChange}
                                             placeholder="Enter outfit name"
                                             className="h-12 text-lg border-2 border-border/50 focus:border-royal transition-colors"
+                                            data-testid="outfit-name-input"
                                         />
                                     </div>
 
@@ -173,6 +190,7 @@ export default function NewOutfitPage() {
                                             onChange={handleChange}
                                             placeholder="casual, summer, formal"
                                             className="h-12 text-lg border-2 border-border/50 focus:border-royal transition-colors"
+                                            data-testid="outfit-tags-input"
                                         />
                                     </div>
                                 </div>
@@ -187,6 +205,7 @@ export default function NewOutfitPage() {
                                         rows={4}
                                         placeholder="Describe your outfit, when you'd wear it, or any special details..."
                                         className="text-lg border-2 border-border/50 focus:border-royal transition-colors resize-none"
+                                        data-testid="outfit-description-textarea"
                                     />
                                 </div>
 
@@ -213,6 +232,7 @@ export default function NewOutfitPage() {
                                         id="isPrivate"
                                         checked={formData.isPrivate}
                                         onCheckedChange={handleCheckboxChange}
+                                        data-testid="outfit-private-checkbox"
                                     />
                                     <div>
                                         <Label htmlFor="isPrivate" className="text-sm font-semibold text-foreground">Make this outfit private</Label>
@@ -238,6 +258,7 @@ export default function NewOutfitPage() {
                                         size="lg"
                                         onClick={addItem}
                                         className="border-2 border-royal/30 text-royal hover:bg-royal hover:text-royal-foreground transition-all duration-300 transform hover:scale-105"
+                                        data-testid="add-item-button"
                                     >
                                         <Plus className="h-5 w-5 mr-2" />
                                         Add Item
@@ -295,6 +316,7 @@ export default function NewOutfitPage() {
                                                         'e.g., Nike Air Max, Levi\'s 501 Jeans'
                                                     }
                                                     className="h-12 border-2 border-border/50 focus:border-royal transition-colors"
+                                                    data-testid={`item-name-input-${index}`}
                                                 />
                                             </div>
 
@@ -304,12 +326,12 @@ export default function NewOutfitPage() {
                                                     value={item.category}
                                                     onValueChange={(value) => updateItem(index, "category", value)}
                                                 >
-                                                    <SelectTrigger className="h-12 border-2 border-border/50 focus:border-royal transition-colors">
+                                                    <SelectTrigger className="h-12 border-2 border-border/50 focus:border-royal transition-colors" data-testid={`item-category-select-${index}`}>
                                                         <SelectValue placeholder="Select category" />
                                                     </SelectTrigger>
                                                     <SelectContent>
                                                         {itemCategories.map((category) => (
-                                                            <SelectItem key={category.value} value={category.value}>
+                                                            <SelectItem key={category.value} value={category.value} data-testid={`item-category-option-${category.value}-${index}`}>
                                                                 {category.label}
                                                             </SelectItem>
                                                         ))}
@@ -324,6 +346,7 @@ export default function NewOutfitPage() {
                                                     onChange={(e) => updateItem(index, "description", e.target.value)}
                                                     placeholder="Optional details about this item"
                                                     className="h-12 border-2 border-border/50 focus:border-royal transition-colors"
+                                                    data-testid={`item-description-input-${index}`}
                                                 />
                                             </div>
 
@@ -335,6 +358,7 @@ export default function NewOutfitPage() {
                                                     onChange={(e) => updateItem(index, "purchaseUrl", e.target.value)}
                                                     placeholder="https://store.com/item"
                                                     className="h-12 border-2 border-border/50 focus:border-royal transition-colors"
+                                                    data-testid={`item-purchase-url-input-${index}`}
                                                 />
                                             </div>
                                         </div>
@@ -355,6 +379,7 @@ export default function NewOutfitPage() {
                                     type="submit"
                                     disabled={isLoading}
                                     className="px-8 py-3 bg-gradient-royal hover:bg-gradient-royal-light text-white shadow-lg hover:shadow-xl transition-all duration-300 transform hover:scale-105"
+                                    data-testid="save-outfit-button"
                                 >
                                     {isLoading ? (
                                         <div className="flex items-center gap-2">

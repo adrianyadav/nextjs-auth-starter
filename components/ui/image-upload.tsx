@@ -8,6 +8,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Upload, X, Image as ImageIcon, Link as LinkIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
+import { useToast } from "./use-toast";
 
 interface ImageUploadProps {
     onImageUpload: (imageUrl: string) => void;
@@ -22,6 +23,7 @@ export default function ImageUpload({ onImageUpload, currentImageUrl, className 
     const [imageUrl, setImageUrl] = useState(currentImageUrl || "");
     const [mode, setMode] = useState<"upload" | "url">(currentImageUrl ? "url" : "upload");
     const fileInputRef = useRef<HTMLInputElement>(null);
+    const { toast } = useToast();
 
     const handleUpload = async (file: File) => {
         if (!file) return;
@@ -29,14 +31,20 @@ export default function ImageUpload({ onImageUpload, currentImageUrl, className 
         // Validate file type
         const allowedTypes = ["image/jpeg", "image/jpg", "image/png", "image/webp"];
         if (!allowedTypes.includes(file.type)) {
-            alert("Invalid file type. Only JPEG, PNG, and WebP images are allowed.");
+            toast({
+                title: "Invalid file type",
+                description: "Only JPEG, PNG, and WebP images are allowed.",
+            });
             return;
         }
 
         // Validate file size (max 5MB)
         const maxSize = 5 * 1024 * 1024; // 5MB
         if (file.size > maxSize) {
-            alert("File too large. Maximum size is 5MB.");
+            toast({
+                title: "File too large",
+                description: "Maximum size is 5MB.",
+            });
             return;
         }
 
@@ -52,16 +60,20 @@ export default function ImageUpload({ onImageUpload, currentImageUrl, className 
             });
 
             if (!response.ok) {
-                const error = await response.json();
-                throw new Error(error.error || "Upload failed");
+                const errorData = await response.json();
+                throw new Error(errorData.error || "Upload failed");
             }
 
             const { imageUrl } = await response.json();
             setPreviewUrl(imageUrl);
             onImageUpload(imageUrl);
-        } catch (error) {
-            console.error("Upload error:", error);
-            alert(error instanceof Error ? error.message : "Upload failed");
+        } catch (err) {
+            console.error("Upload error:", err);
+            toast({
+                variant: "destructive",
+                title: "Upload failed",
+                description: err instanceof Error ? err.message : "Please try again later.",
+            });
         } finally {
             setIsUploading(false);
         }
