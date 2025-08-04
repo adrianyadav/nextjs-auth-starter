@@ -27,14 +27,14 @@ export default function Header() {
 
         {/* Desktop Navigation - Hidden on mobile */}
         <div className="hidden md:flex items-center space-x-4">
-          <Button asChild variant="outline" className="border-royal/30 text-royal hover:bg-royal hover:text-white transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md" style={{ color: 'black' }}>
+          <Button asChild variant="outline" className="border-royal/30 text-royal hover:bg-royal hover:text-white transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md">
             <Link href="/outfits">
               Browse
             </Link>
           </Button>
           {session ? (
             <>
-              <Button asChild variant="outline" className="border-royal/30 text-royal hover:bg-royal hover:text-white transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md" style={{ color: 'black' }}>
+              <Button asChild variant="outline" className="border-royal/30 text-royal hover:bg-royal hover:text-white transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md">
                 <Link href="/my-outfits">
                   My Outfits
                 </Link>
@@ -43,6 +43,11 @@ export default function Header() {
                 <div className="text-sm px-3 py-2">
                   {session.user?.name && <div className="font-medium">{session.user.name}</div>}
                 </div>
+                <Button asChild variant="outline" className="border-royal/30 text-royal hover:bg-royal hover:text-white transition-all duration-300 transform hover:scale-105 shadow-sm hover:shadow-md">
+                  <Link href="/settings">
+                    Settings
+                  </Link>
+                </Button>
                 <Button
                   data-testid="logout-button"
                   onClick={() => signOut()}
@@ -93,7 +98,6 @@ export default function Header() {
               asChild
               variant="outline"
               className="w-full justify-center border-royal/30 text-royal hover:bg-royal hover:text-white transition-all duration-300 shadow-sm hover:shadow-md"
-              style={{ color: 'black' }}
               onClick={closeMobileMenu}
             >
               <Link href="/outfits">
@@ -107,7 +111,6 @@ export default function Header() {
                   asChild
                   variant="outline"
                   className="w-full justify-center border-royal/30 text-royal hover:bg-royal hover:text-white transition-all duration-300 shadow-sm hover:shadow-md"
-                  style={{ color: 'black' }}
                   onClick={closeMobileMenu}
                 >
                   <Link href="/my-outfits">
@@ -121,6 +124,16 @@ export default function Header() {
                       <div className="font-medium text-sm">{session.user.name}</div>
                     </div>
                   )}
+                  <Button
+                    asChild
+                    variant="outline"
+                    className="w-full justify-center border-royal/30 text-royal hover:bg-royal hover:text-white transition-all duration-300 shadow-sm hover:shadow-md"
+                    onClick={closeMobileMenu}
+                  >
+                    <Link href="/settings">
+                      Settings
+                    </Link>
+                  </Button>
                   <Button
                     data-testid="logout-button-mobile"
                     onClick={() => {

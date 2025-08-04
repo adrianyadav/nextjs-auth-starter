@@ -27,7 +27,7 @@ export default function LoginPage() {
       });
 
       if (response?.error) {
-        setError("Invalid credentials");
+        setError(response.error);
         return;
       }
 
@@ -102,7 +102,22 @@ export default function LoginPage() {
             </div>
 
             {error && (
-              <div className="text-destructive text-sm text-center" data-testid="error-message">{error}</div>
+              <div className="text-destructive text-sm text-center" data-testid="error-message">
+                {error}
+                {error.includes("Google") && (
+                  <div className="mt-2">
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={handleGoogleSignIn}
+                      disabled={isLoading}
+                    >
+                      Sign in with Google
+                    </Button>
+                  </div>
+                )}
+              </div>
             )}
 
             <Button type="submit" className="w-full" data-testid="submit-button" disabled={isLoading}>

@@ -7,7 +7,7 @@ export { handler as GET, handler as POST };
 
 declare module "next-auth" {
   interface Session {
-    user: { id: string; name: string; email: string };
+    user: { id: string; name: string; email: string; image?: string };
     // user: { id: string };
   }
 }
@@ -15,5 +15,8 @@ declare module "next-auth" {
 declare module "next-auth/jwt" {
   interface JWT {
     id: string;
+    email?: string;
+    name?: string;
+    image?: string;
   }
 }
