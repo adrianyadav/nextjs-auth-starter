@@ -84,3 +84,83 @@ export async function DELETE(
         return NextResponse.json({ error: "Failed to delete outfit" }, { status: 500 });
     }
 }
+
+export async function PUT(
+    request: NextRequest,
+    { params }: { params: Promise<{ id: string }> }
+) {
+    try {
+        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+        const session = await getServerSession(authOptions as any) as any;
+
+        if (!session?.user?.email) {
+            return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+        }
+
+        const { id } = await params;
+        const outfitId = parseInt(id);
+
+        if (isNaN(outfitId)) {
+            return NextResponse.json({ error: "Invalid outfit ID" }, { status: 400 });
+        }
+
+        // Check if the outfit exists and belongs to the current user
+        const existingOutfit = await prisma.outfit.findFirst({
+            where: {
+                id: outfitId,
+                userId: session.user.id
+            },
+            include: {
+                items: true
+            }
+        });
+
+        if (!existingOutfit) {
+            return NextResponse.json({ error: "Outfit not found or access denied" }, { status: 404 });
+        }
+
+        const body = await request.json();
+        const { name, description, imageUrl, tags, isPrivate, items } = body;
+
+        if (!name) {
+            return NextResponse.json({ error: "Name is required" }, { status: 400 });
+        }
+
+        // Delete existing items
+        await prisma.outfitItem.deleteMany({
+            where: {
+                outfitId: outfitId
+            }
+        });
+
+        // Update the outfit
+        const updatedOutfit = await prisma.outfit.update({
+            where: {
+                id: outfitId
+            },
+            data: {
+                name,
+                description,
+                imageUrl,
+                tags: tags || [],
+                isPrivate: isPrivate || false,
+                items: {
+                    create: items || []
+                }
+            },
+            include: {
+                user: {
+                    select: {
+                        name: true,
+                    },
+                },
+                items: true,
+            },
+        });
+
+        return NextResponse.json(updatedOutfit);
+    } catch (error) {
+        console.error("Error updating outfit:", error);
+        return NextResponse.json({ error: "Failed to update outfit" }, { status: 500 });
+    }
+}

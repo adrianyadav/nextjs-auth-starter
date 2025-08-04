@@ -9,6 +9,7 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
+import EditOutfitModal from "@/components/ui/edit-outfit-modal";
 import { useToast } from "@/components/ui/use-toast";
 import { ArrowLeft } from "lucide-react";
 
@@ -161,6 +162,10 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
         }
     };
 
+    const handleOutfitUpdated = (updatedOutfit: Outfit) => {
+        setOutfit(updatedOutfit);
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
@@ -192,15 +197,21 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                                 </Link>
                             </Button>
                             {isOwned ? (
-                                <Button
-                                    data-testid="delete-outfit-button"
-                                    variant="destructive"
-                                    onClick={() => setShowDeleteDialog(true)}
-                                    disabled={isDeleting}
-                                    className="sm:flex-none"
-                                >
-                                    Delete
-                                </Button>
+                                <>
+                                    <EditOutfitModal
+                                        outfit={outfit}
+                                        onOutfitUpdated={handleOutfitUpdated}
+                                    />
+                                    <Button
+                                        data-testid="delete-outfit-button"
+                                        variant="destructive"
+                                        onClick={() => setShowDeleteDialog(true)}
+                                        disabled={isDeleting}
+                                        className="sm:flex-none"
+                                    >
+                                        Delete
+                                    </Button>
+                                </>
                             ) : (
                                 !outfit.isPrivate && (
                                     <Button
