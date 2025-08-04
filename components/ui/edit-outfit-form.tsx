@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -9,7 +9,7 @@ import { Card, CardContent, CardDescription } from "@/components/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import ImageUpload from "@/components/ui/image-upload";
-import { Plus, X, Shirt, PersonStanding } from "lucide-react";
+import { Plus, X, PersonStanding } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 
 interface OutfitItem {
@@ -77,6 +77,7 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
                 category: "",
                 description: "",
                 purchaseUrl: "",
+                id: Date.now()
             },
         ]);
     };
@@ -202,8 +203,8 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
                 <div className="space-y-3">
                     <Label className="text-sm font-semibold text-foreground">Outfit Image *</Label>
                     <ImageUpload
-                        value={formData.imageUrl}
-                        onChange={(url) => setFormData(prev => ({ ...prev, imageUrl: url }))}
+                        currentImageUrl={formData.imageUrl}
+                        onImageUpload={(url: string) => setFormData(prev => ({ ...prev, imageUrl: url }))}
                         data-testid="edit-outfit-image-upload"
                     />
                 </div>

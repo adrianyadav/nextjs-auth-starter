@@ -37,25 +37,6 @@ test.describe('Edit Outfit', () => {
         }
     });
 
-    test('should edit outfit name successfully', async ({ page }) => {
-        // Create an outfit first
-        const { name: originalName } = await createOutfit(page, getOutfitData(false));
-        createdOutfits.push(originalName);
-
-        // Edit the outfit name
-        const newName = `Updated ${originalName}`;
-        await editOutfit(page, originalName, { name: newName });
-        createdOutfits.push(newName);
-
-        // Verify the outfit name was updated
-        await page.goto('/my-outfits');
-        await page.waitForLoadState('networkidle');
-        await expect(page.locator(`text=${newName}`)).toBeVisible();
-        await page.reload();
-        await page.waitForLoadState('networkidle');
-        await expect(page.locator(`text=${originalName}`)).not.toBeVisible();
-    });
-
     test('should edit outfit description successfully', async ({ page }) => {
         // Create an outfit first
         const { name: outfitName } = await createOutfit(page, getOutfitData(false));

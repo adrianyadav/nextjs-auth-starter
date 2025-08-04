@@ -207,10 +207,25 @@ class EditOutfitFormPage {
         const itemNameInput = this.page.locator(`[data-testid="edit-item-name-input-${itemIndex}"]`);
         await itemNameInput.fill(item.name);
 
-        // Select category using data-testid
+        // Select category using Radix UI Select approach
         const categorySelect = this.page.locator(`[data-testid="edit-item-category-select-${itemIndex}"]`);
         await categorySelect.click();
-        await this.page.locator(`text=${item.category}`).click();
+
+        // Map the category value to its display label
+        const categoryLabels: { [key: string]: string } = {
+            "HEADWEAR": "Headwear",
+            "UPPERWEAR": "Upperwear",
+            "LOWERWEAR": "Lowerwear",
+            "FOOTWEAR": "Footwear",
+            "ACCESSORIES": "Accessories",
+            "SOCKS": "Socks",
+            "OTHER": "Other"
+        };
+
+        const categoryLabel = categoryLabels[item.category] || item.category;
+
+        // Wait for the dropdown to open and then click on the specific category option
+        await this.page.locator(`[role="option"]:has-text("${categoryLabel}")`).click();
 
         // Fill optional description
         if (item.description) {
