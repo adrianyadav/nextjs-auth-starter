@@ -279,16 +279,18 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                                 <h2 className="text-xl font-semibold text-foreground mb-2">Items</h2>
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
                                     {outfit.items.map((item) => (
-                                        <Card key={item.id}>
+                                        <Card key={item.id} data-testid={`outfit-item-${item.id}`}>
                                             <CardHeader className="pb-2">
-                                                <CardTitle className="text-lg">{item.name}</CardTitle>
-                                                <CardDescription className="capitalize">
+                                                <CardTitle className="text-lg" data-testid={`outfit-item-name-${item.id}`}>
+                                                    {item.name}
+                                                </CardTitle>
+                                                <CardDescription className="capitalize" data-testid={`outfit-item-category-${item.id}`}>
                                                     {item.category.toLowerCase()}
                                                 </CardDescription>
                                             </CardHeader>
                                             <CardContent>
                                                 {item.description && (
-                                                    <p className="text-sm text-muted-foreground mb-2">
+                                                    <p className="text-sm text-muted-foreground mb-2" data-testid={`outfit-item-description-${item.id}`}>
                                                         {item.description}
                                                     </p>
                                                 )}
@@ -298,6 +300,7 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                                                         target="_blank"
                                                         rel="noopener noreferrer"
                                                         className="text-sm text-blue-600 hover:text-blue-800 underline"
+                                                        data-testid={`outfit-item-purchase-url-${item.id}`}
                                                     >
                                                         View Purchase Link →
                                                     </a>

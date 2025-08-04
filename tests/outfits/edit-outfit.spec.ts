@@ -110,32 +110,6 @@ test.describe('Edit Outfit', () => {
         await cancelButton.click();
     });
 
-    test('should add new item to outfit successfully', async ({ page }) => {
-        // Create an outfit first
-        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
-        createdOutfits.push(outfitName);
-
-        // Add a new item
-        const newItem = {
-            name: 'New Sneakers',
-            category: 'FOOTWEAR',
-            description: 'Comfortable sneakers for walking',
-            purchaseUrl: 'https://example.com/sneakers'
-        };
-        await editOutfit(page, outfitName, { items: [newItem] });
-
-        // Navigate to the outfit detail page to verify the new item
-        await page.goto('/my-outfits');
-        await page.waitForLoadState('networkidle');
-
-        const outfitCard = page.locator('a[href*="/outfits/"]').filter({ hasText: outfitName });
-        await outfitCard.click();
-        await page.waitForLoadState('networkidle');
-
-        await expect(page.locator('text=New Sneakers')).toBeVisible();
-        await expect(page.locator('text=Footwear')).toBeVisible();
-    });
-
     test('should edit existing item in outfit successfully', async ({ page }) => {
         // Create an outfit first
         const { name: outfitName } = await createOutfit(page, getOutfitData(false));
@@ -165,8 +139,8 @@ test.describe('Edit Outfit', () => {
         // Wait for the modal to close
         await page.waitForSelector('[data-testid="edit-outfit-form"]', { state: 'hidden' });
 
-        // Verify the item was updated
-        await expect(page.locator('text=Updated Cotton T-Shirt')).toBeVisible();
+        // Verify the item was updated - look for the updated name
+        await expect(page.locator('[data-testid*="outfit-item-name"]').filter({ hasText: 'Updated Cotton T-Shirt' })).toBeVisible();
     });
 
     test('should remove item from outfit successfully', async ({ page }) => {

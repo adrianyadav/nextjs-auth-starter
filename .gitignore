@@ -50,3 +50,5 @@ storybook-static
 
 test-results/.last-run.json
 test-results/.last-run.json
+playwright-report/index.html
+playwright-report/data/

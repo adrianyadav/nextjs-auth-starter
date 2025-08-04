@@ -225,7 +225,13 @@ class EditOutfitFormPage {
         const categoryLabel = categoryLabels[item.category] || item.category;
 
         // Wait for the dropdown to open and then click on the specific category option
-        await this.page.locator(`[role="option"]:has-text("${categoryLabel}")`).click();
+        // Add a small wait to ensure the dropdown is fully open
+        await this.page.waitForTimeout(500);
+
+        // Try to find and click the option
+        const option = this.page.locator(`[role="option"]:has-text("${categoryLabel}")`);
+        await option.waitFor({ timeout: 5000 });
+        await option.click();
 
         // Fill optional description
         if (item.description) {
