@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginWithTestAccount, createOutfit, editOutfit, cleanupTestOutfits } from '../utils';
+import { loginWithTestAccount, createOutfit, editOutfit } from '../utils';
 
 // Shared outfit data
 const getOutfitData = (isPrivate = false) => ({
@@ -29,13 +29,6 @@ test.describe('Edit Outfit', () => {
         await loginWithTestAccount(page);
     });
 
-    test.afterEach(async ({ page }) => {
-        // Clean up any outfits created during the test
-        if (createdOutfits.length > 0) {
-            await cleanupTestOutfits(page, createdOutfits);
-            createdOutfits = []; // Reset the array
-        }
-    });
 
     test('should edit outfit description successfully', async ({ page }) => {
         // Create an outfit first

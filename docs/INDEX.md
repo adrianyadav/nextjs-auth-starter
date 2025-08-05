@@ -7,17 +7,11 @@ This directory contains all the documentation for the OutfitSave project.
 ### 📖 [README.md](./README.md)
 Main project overview, features, and setup instructions.
 
-### 🎨 [STYLE_GUIDE.md](./STYLE_GUIDE.md)
-Comprehensive design system guide including colors, typography, components, and usage guidelines.
-
 ### 🧪 [TESTING.md](./TESTING.md)
 Testing strategy, Playwright setup, and test organization guidelines.
 
 ### 🔐 [OAUTH_SETUP.md](./OAUTH_SETUP.md)
 Step-by-step guide for setting up Google OAuth authentication.
-
-### 🚀 [PRODUCTION_TESTING.md](./PRODUCTION_TESTING.md)
-Guide for running tests against the production environment.
 
 ## 🚀 Quick Access
 

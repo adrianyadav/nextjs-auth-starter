@@ -1,5 +1,5 @@
 import { test, expect } from '@playwright/test';
-import { loginWithTestAccount, createOutfit, cleanupTestOutfits } from '../utils';
+import { loginWithTestAccount, createOutfit } from '../utils';
 import { OutfitPage } from '../pages/outfit-page';
 
 // Shared outfit data
@@ -30,14 +30,6 @@ test.describe('Delete Outfit', () => {
         // Login with existing test account before each test
         await loginWithTestAccount(page);
         outfitPage = new OutfitPage(page);
-    });
-
-    test.afterEach(async ({ page }) => {
-        // Clean up any outfits created during the test
-        if (createdOutfits.length > 0) {
-            await cleanupTestOutfits(page, createdOutfits);
-            createdOutfits = []; // Reset the array
-        }
     });
 
     test('should delete an outfit from My Outfits page', async ({ page }) => {
