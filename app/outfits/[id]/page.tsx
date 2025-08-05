@@ -8,10 +8,9 @@ import Image from "next/image";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Badge } from "@/components/ui/badge";
-import ConfirmDialog from "@/components/ui/confirm-dialog";
 import EditOutfitModal from "@/components/ui/edit-outfit-modal";
 import { useToast } from "@/components/ui/use-toast";
-import { ArrowLeft, Trash2 } from "lucide-react";
+import { ArrowLeft } from "lucide-react";
 
 interface OutfitItem {
     id: number;
@@ -41,8 +40,6 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
     const { id } = use(params);
     const [outfit, setOutfit] = useState<Outfit | null>(null);
     const [isLoading, setIsLoading] = useState(true);
-    const [showDeleteDialog, setShowDeleteDialog] = useState(false);
-    const [isDeleting, setIsDeleting] = useState(false);
     const [isSaving, setIsSaving] = useState(false);
     const [isOwned, setIsOwned] = useState(false);
     const { toast } = useToast();
@@ -73,55 +70,6 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
 
         fetchOutfit();
     }, [id, router]);
-
-    const handleDelete = async () => {
-        if (isDeleting || !outfit) return;
-
-        setIsDeleting(true);
-        try {
-            const response = await fetch(`/api/outfits/${outfit.id}`, {
-                method: "DELETE",
-                credentials: "include",
-                headers: {
-                    "Content-Type": "application/json",
-                },
-            });
-
-            if (response.ok) {
-                // Redirect to my-outfits page after successful deletion
-                console.log("Deletion successful, redirecting to /my-outfits");
-                toast({
-                    title: "Success",
-                    description: "Outfit deleted successfully!",
-                });
-                // Try multiple redirect methods
-                try {
-                    router.push("/my-outfits");
-                } catch {
-                    console.log("Router failed, using window.location");
-                    window.location.href = "/my-outfits";
-                }
-            } else {
-                const errorData = await response.json();
-                console.error("Delete failed:", errorData);
-                toast({
-                    variant: "destructive",
-                    title: "Error",
-                    description: errorData.error || "Failed to delete outfit",
-                });
-            }
-        } catch (err) {
-            console.error("Error deleting outfit:", err);
-            toast({
-                variant: "destructive",
-                title: "Error",
-                description: "Failed to delete outfit. Please try again later.",
-            });
-        } finally {
-            setIsDeleting(false);
-            setShowDeleteDialog(false);
-        }
-    };
 
     const handleSaveOutfit = async () => {
         if (isSaving || !outfit) return;
@@ -197,25 +145,13 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                                 </Link>
                             </Button>
 
-                            {/* Edit/Delete actions */}
+                            {/* Edit actions */}
                             <div className="flex items-center gap-2">
                                 {isOwned ? (
-                                    <>
-                                        <EditOutfitModal
-                                            outfit={outfit}
-                                            onOutfitUpdated={handleOutfitUpdated}
-                                        />
-                                        <Button
-                                            variant="destructive"
-                                            size="sm"
-                                            onClick={() => setShowDeleteDialog(true)}
-                                            disabled={isDeleting}
-                                            className="bg-destructive/90 backdrop-blur-sm flex items-center gap-2 h-9"
-                                        >
-                                            <Trash2 className="h-4 w-4" />
-                                            {isDeleting ? "Deleting..." : "Delete"}
-                                        </Button>
-                                    </>
+                                    <EditOutfitModal
+                                        outfit={outfit}
+                                        onOutfitUpdated={handleOutfitUpdated}
+                                    />
                                 ) : (
                                     !outfit.isPrivate && (
                                         <Button
@@ -224,6 +160,7 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                                             onClick={handleSaveOutfit}
                                             disabled={isSaving}
                                             className="bg-royal hover:bg-royal/90 flex items-center gap-2 h-9"
+                                            data-testid="save-to-my-outfits-button"
                                         >
                                             {isSaving ? "Saving..." : "Save"}
                                         </Button>
@@ -318,16 +255,6 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                     </CardContent>
                 </Card>
             </div>
-
-            <ConfirmDialog
-                title="Delete Outfit"
-                message={`Are you sure you want to delete "${outfit?.name}"? This action cannot be undone.`}
-                confirmText="Delete Outfit"
-                onConfirm={handleDelete}
-                isOpen={showDeleteDialog}
-                onClose={() => setShowDeleteDialog(false)}
-                isLoading={isDeleting}
-            />
         </div>
     );
 } 

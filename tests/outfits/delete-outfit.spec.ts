@@ -1,30 +1,10 @@
 import { test, expect } from '@playwright/test';
 import { loginWithTestAccount, createOutfit } from '../utils';
 import { OutfitPage } from '../pages/outfit-page';
-
-// Shared outfit data
-const getOutfitData = (isPrivate = false) => ({
-    name: `${isPrivate ? 'Private ' : ''}Delete Test Outfit ${Date.now()}`,
-    description: 'An outfit to test deletion',
-    tags: 'test, delete',
-    items: [
-        {
-            name: 'Test T-Shirt',
-            category: 'UPPERWEAR',
-            description: 'A test t-shirt for deletion',
-            purchaseUrl: 'https://example.com/tshirt'
-        },
-        {
-            name: 'Test Jeans',
-            category: 'LOWERWEAR',
-            description: 'Test jeans for deletion'
-        }
-    ]
-});
+import { getDefaultOutfitData } from '../test-data';
 
 test.describe('Delete Outfit', () => {
     let outfitPage: OutfitPage;
-    let createdOutfits: string[] = [];
 
     test.beforeEach(async ({ page }) => {
         // Login with existing test account before each test
@@ -33,12 +13,18 @@ test.describe('Delete Outfit', () => {
     });
 
     test('should delete an outfit from My Outfits page', async ({ page }) => {
-        // Create an outfit first
-        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
-        createdOutfits.push(outfitName);
+        // Create an outfit first - this will redirect to /my-outfits
+        console.log('Creating outfit...');
+        const { name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
+        console.log(`Created outfit: ${outfitName}`);
 
-        // Navigate to My Outfits page
-        await outfitPage.gotoMyOutfits();
+        // We should already be on the My Outfits page after creation
+        // Just wait for the page to be ready
+        await outfitPage.waitForOutfitsToLoad();
+
+        // Add debugging to see what's on the page
+        const outfitCount = await outfitPage.outfitCards.count();
+        console.log(`Found ${outfitCount} outfit cards on the page`);
 
         // Verify the outfit exists before deletion
         await outfitPage.expectOutfitVisible(outfitName);
@@ -53,35 +39,17 @@ test.describe('Delete Outfit', () => {
         await outfitPage.expectOutfitNotVisible(outfitName);
     });
 
-    test('should delete an outfit from outfit detail page', async ({ page }) => {
-        // Create an outfit first
-        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
-        createdOutfits.push(outfitName);
-
-        // Navigate to My Outfits page and go to outfit detail
-        await outfitPage.gotoMyOutfits();
-        await outfitPage.gotoOutfitDetail(outfitName);
-
-        // Verify we're on the detail page
-        await expect(page.locator(`text=${outfitName}`)).toBeVisible({ timeout: 10000 });
-
-        // Delete the outfit from detail page
-        await outfitPage.deleteOutfitFromDetailPage();
-
-        // Verify we're on the my-outfits page
-        await outfitPage.expectOnMyOutfitsPage();
-
-        // Verify the outfit is no longer visible
-        await outfitPage.expectOutfitNotVisible(outfitName);
-    });
-
     test('should cancel deletion when clicking cancel', async ({ page }) => {
-        // Create an outfit first
-        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
-        createdOutfits.push(outfitName);
+        // Create an outfit first - this will redirect to /my-outfits
+        console.log('Creating outfit for cancel test...');
+        const { name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
+        console.log(`Created outfit: ${outfitName}`);
 
-        // Navigate to My Outfits page
-        await outfitPage.gotoMyOutfits();
+        // We should already be on the My Outfits page after creation
+        await outfitPage.waitForOutfitsToLoad();
+
+        // Add debugging to see what outfits are actually on the page
+        console.log(`Looking for outfit: ${outfitName}`);
 
         // Verify the outfit exists
         await outfitPage.expectOutfitVisible(outfitName);
@@ -94,12 +62,13 @@ test.describe('Delete Outfit', () => {
     });
 
     test('should show loading state during deletion', async ({ page }) => {
-        // Create an outfit first
-        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
-        createdOutfits.push(outfitName);
+        // Create an outfit first - this will redirect to /my-outfits
+        console.log('Creating outfit for loading state test...');
+        const { name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
+        console.log(`Created outfit: ${outfitName}`);
 
-        // Navigate to My Outfits page
-        await outfitPage.gotoMyOutfits();
+        // We should already be on the My Outfits page after creation
+        await outfitPage.waitForOutfitsToLoad();
 
         // Start deletion and verify loading state
         const deleteButton = outfitPage.getOutfitDeleteButton(outfitName);
@@ -126,6 +95,4 @@ test.describe('Delete Outfit', () => {
         // Verify we're on my-outfits page
         await outfitPage.expectOnMyOutfitsPage();
     });
-
-
 }); 

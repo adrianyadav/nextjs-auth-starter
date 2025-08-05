@@ -1,25 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { loginWithTestAccount, createOutfit, editOutfit } from '../utils';
-
-// Shared outfit data
-const getOutfitData = (isPrivate = false) => ({
-    name: `${isPrivate ? 'Private ' : ''}Summer Casual Outfit ${Date.now()}`,
-    description: 'A comfortable summer outfit for casual occasions',
-    tags: 'casual, summer, comfortable',
-    items: [
-        {
-            name: 'Cotton T-Shirt',
-            category: 'UPPERWEAR',
-            description: 'Comfortable cotton t-shirt',
-            purchaseUrl: 'https://example.com/tshirt'
-        },
-        {
-            name: 'Jeans',
-            category: 'LOWERWEAR',
-            description: 'Blue denim jeans'
-        }
-    ]
-});
+import { getDefaultOutfitData } from '../test-data';
 
 test.describe('Edit Outfit', () => {
     let createdOutfits: string[] = [];
@@ -32,7 +13,7 @@ test.describe('Edit Outfit', () => {
 
     test('should edit outfit description successfully', async ({ page }) => {
         // Create an outfit first
-        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        const { name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
         createdOutfits.push(outfitName);
 
         // Edit the outfit description
@@ -52,7 +33,7 @@ test.describe('Edit Outfit', () => {
 
     test('should edit outfit tags successfully', async ({ page }) => {
         // Create an outfit first
-        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        const { name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
         createdOutfits.push(outfitName);
 
         // Edit the outfit tags
@@ -76,7 +57,7 @@ test.describe('Edit Outfit', () => {
 
     test('should toggle outfit privacy successfully', async ({ page }) => {
         // Create a public outfit first
-        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        const { name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
         createdOutfits.push(outfitName);
 
         // Make it private
@@ -105,7 +86,7 @@ test.describe('Edit Outfit', () => {
 
     test('should edit existing item in outfit successfully', async ({ page }) => {
         // Create an outfit first
-        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        const { name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
         createdOutfits.push(outfitName);
 
         // Navigate to the outfit detail page
@@ -138,7 +119,7 @@ test.describe('Edit Outfit', () => {
 
     test('should remove item from outfit successfully', async ({ page }) => {
         // Create an outfit first
-        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        const { name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
         createdOutfits.push(outfitName);
 
         // Navigate to the outfit detail page
@@ -171,7 +152,7 @@ test.describe('Edit Outfit', () => {
 
     test('should cancel edit without saving changes', async ({ page }) => {
         // Create an outfit first
-        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        const { name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
         createdOutfits.push(outfitName);
 
         // Navigate to the outfit detail page
@@ -205,7 +186,7 @@ test.describe('Edit Outfit', () => {
 
     test('should show edit button only for owned outfits', async ({ page }) => {
         // Create an outfit first
-        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        const { name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
         createdOutfits.push(outfitName);
 
         // Navigate to the outfit detail page

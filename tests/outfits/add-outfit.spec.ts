@@ -1,25 +1,6 @@
 import { test, expect } from '@playwright/test';
 import { loginWithTestAccount, createOutfit } from '../utils';
-
-// Shared outfit data
-const getOutfitData = (isPrivate = false) => ({
-    name: `${isPrivate ? 'Private ' : ''}Summer Casual Outfit ${Date.now()}`,
-    description: 'A comfortable summer outfit for casual occasions',
-    tags: 'casual, summer, comfortable',
-    items: [
-        {
-            name: 'Cotton T-Shirt',
-            category: 'UPPERWEAR',
-            description: 'Comfortable cotton t-shirt',
-            purchaseUrl: 'https://example.com/tshirt'
-        },
-        {
-            name: 'Jeans',
-            category: 'LOWERWEAR',
-            description: 'Blue denim jeans'
-        }
-    ]
-});
+import { getDefaultOutfitData } from '../test-data';
 
 test.describe('Add Outfit', () => {
     let createdOutfits: string[] = [];
@@ -30,7 +11,7 @@ test.describe('Add Outfit', () => {
     });
 
     test('should create a new outfit successfully', async ({ page }) => {
-        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        const { name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
         createdOutfits.push(outfitName);
 
         // Verify the outfit was created
@@ -39,7 +20,7 @@ test.describe('Add Outfit', () => {
 
     test('should create a private outfit successfully', async ({ page }) => {
         const { name: outfitName, isPrivate } = await createOutfit(page, {
-            ...getOutfitData(true),
+            ...getDefaultOutfitData(true),
             isPrivate: true
         });
         createdOutfits.push(outfitName);
@@ -55,7 +36,7 @@ test.describe('Add Outfit', () => {
 
     test('should navigate to create outfit page when clicking Create New Outfit button', async ({ page }) => {
         // First create an outfit so we have outfits to display
-        const { name: outfitName } = await createOutfit(page, getOutfitData(false));
+        const { name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
         createdOutfits.push(outfitName);
 
         // Navigate to my outfits page
@@ -72,4 +53,4 @@ test.describe('Add Outfit', () => {
         // Verify we navigated to the create outfit page
         await expect(page).toHaveURL('/outfits/new');
     });
-}); 
+});

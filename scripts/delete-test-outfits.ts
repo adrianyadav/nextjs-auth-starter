@@ -2,39 +2,28 @@ import { PrismaClient } from '@prisma/client';
 
 const prisma = new PrismaClient();
 
+/**
+ * Delete Test Outfits Script
+ * 
+ * This script ONLY deletes outfits that have the "test" tag.
+ * This ensures that:
+ * - Test data created during test runs is cleaned up
+ * - Seeded data (like the outfits in prisma/seed.ts) is NEVER deleted
+ * - Only outfits explicitly marked with "test" tag are removed
+ * 
+ * Safety: The script uses a very specific filter to prevent accidental deletion
+ * of production or seeded data.
+ */
+
 async function deleteTestOutfits() {
     console.log('🧹 Starting test outfits cleanup...');
 
     try {
-        // First, let's see what test outfits exist
+        // Only delete outfits that have the "test" tag
+        // This ensures we only delete test data and never touch seeded data
         const testOutfits = await prisma.outfit.findMany({
             where: {
-                OR: [
-                    // Test outfits with various naming patterns
-                    { name: { contains: 'test', mode: 'insensitive' } },
-                    { name: { contains: 'Test', mode: 'insensitive' } },
-                    { name: { contains: 'TEST', mode: 'insensitive' } },
-                    { name: { contains: 'Summer Casual Outfit', mode: 'insensitive' } },
-                    { name: { contains: 'Private Summer Casual Outfit', mode: 'insensitive' } },
-                    { name: { contains: 'Outfit ', mode: 'insensitive' } }, // Matches "Outfit 1234567890"
-                    { name: { contains: 'Cotton T-Shirt', mode: 'insensitive' } },
-                    { name: { contains: 'Jeans', mode: 'insensitive' } },
-
-                    // Test descriptions
-                    { description: { contains: 'test', mode: 'insensitive' } },
-                    { description: { contains: 'Test', mode: 'insensitive' } },
-                    { description: { contains: 'TEST', mode: 'insensitive' } },
-                    { description: { contains: 'A test outfit', mode: 'insensitive' } },
-                    { description: { contains: 'A comfortable summer outfit', mode: 'insensitive' } },
-                    { description: { contains: 'Comfortable cotton t-shirt', mode: 'insensitive' } },
-                    { description: { contains: 'Blue denim jeans', mode: 'insensitive' } },
-
-                    // Test tags
-                    { tags: { has: 'test' } },
-                    { tags: { has: 'casual' } },
-                    { tags: { has: 'summer' } },
-                    { tags: { has: 'comfortable' } },
-                ]
+                tags: { has: 'test' }
             },
             include: {
                 user: {
@@ -58,37 +47,14 @@ async function deleteTestOutfits() {
             return;
         }
 
-        // Delete all test outfits (this will cascade delete related items)
+        // Safety check: Confirm we're only deleting outfits with "test" tag
+        console.log('🔒 Safety check: Only outfits with "test" tag will be deleted');
+        console.log('🔒 This ensures seeded data and production data are protected');
+
+        // Delete only outfits with "test" tag (this will cascade delete related items)
         const deletedOutfits = await prisma.outfit.deleteMany({
             where: {
-                OR: [
-                    // Test outfits with various naming patterns
-                    { name: { contains: 'test', mode: 'insensitive' } },
-                    { name: { contains: 'Test', mode: 'insensitive' } },
-                    { name: { contains: 'TEST', mode: 'insensitive' } },
-                    { name: { contains: 'Summer Casual Outfit', mode: 'insensitive' } },
-                    { name: { contains: 'Private Summer Casual Outfit', mode: 'insensitive' } },
-                    { name: { contains: 'Outfit ', mode: 'insensitive' } }, // Matches "Outfit 1234567890"
-                    { name: { contains: 'Cotton T-Shirt', mode: 'insensitive' } },
-                    { name: { contains: 'Jeans', mode: 'insensitive' } },
-                    { name: { contains: 'Delete Test Outfit', mode: 'insensitive' } },
-                    { name: { contains: 'Public Save Test Outfit', mode: 'insensitive' } },
-
-                    // Test descriptions
-                    { description: { contains: 'test', mode: 'insensitive' } },
-                    { description: { contains: 'Test', mode: 'insensitive' } },
-                    { description: { contains: 'TEST', mode: 'insensitive' } },
-                    { description: { contains: 'A test outfit', mode: 'insensitive' } },
-                    { description: { contains: 'A comfortable summer outfit', mode: 'insensitive' } },
-                    { description: { contains: 'Comfortable cotton t-shirt', mode: 'insensitive' } },
-                    { description: { contains: 'Blue denim jeans', mode: 'insensitive' } },
-
-                    // Test tags
-                    { tags: { has: 'test' } },
-                    { tags: { has: 'casual' } },
-                    { tags: { has: 'summer' } },
-                    { tags: { has: 'comfortable' } },
-                ]
+                tags: { has: 'test' }
             }
         });
 

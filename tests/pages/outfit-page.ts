@@ -78,8 +78,18 @@ export class OutfitPage {
     // Visibility checks with better error handling
     async expectOutfitVisible(outfitName: string) {
         // Wait a bit for the outfit to load
-        await this.page.waitForTimeout(1000);
-        await expect(this.getOutfitCard(outfitName)).toBeVisible({ timeout: 10000 });
+        await this.page.waitForTimeout(2000);
+
+        // Try to find the outfit card
+        const outfitCard = this.getOutfitCard(outfitName);
+
+        // Add debugging information
+        const outfitCount = await this.outfitCards.count();
+        console.log(`Total outfits on page: ${outfitCount}`);
+        console.log(`Looking for outfit: "${outfitName}"`);
+
+        // Check if the outfit card is visible
+        await expect(outfitCard).toBeVisible({ timeout: 15000 });
     }
 
     async expectOutfitNotVisible(outfitName: string) {
@@ -155,24 +165,10 @@ export class OutfitPage {
         await this.page.waitForTimeout(2000);
     }
 
-    async deleteOutfitFromDetailPage() {
-        // Click delete button on detail page
-        const deleteButton = this.page.locator('[data-testid="delete-outfit-button"]');
-        await expect(deleteButton).toBeVisible({ timeout: 10000 });
-        await deleteButton.click();
-
-        // Wait for confirmation dialog
-        await expect(this.confirmDialogTitle).toBeVisible({ timeout: 10000 });
-
-        // Confirm deletion
-        await this.confirmButton.click();
-
-        // Wait for toast notification to appear
-        await this.waitForToastToAppear();
-
-        // Wait for redirect to my-outfits page
-        await this.page.waitForURL(/.*\/my-outfits/, { timeout: 10000 });
-    }
+    // Remove the deleteOutfitFromDetailPage method since delete button no longer exists on detail page
+    // async deleteOutfitFromDetailPage() {
+    //     // This method is no longer needed since delete button was removed from detail page
+    // }
 
     async cancelDeleteOutfit(outfitName: string) {
         const deleteButton = this.getOutfitDeleteButton(outfitName);

@@ -366,7 +366,7 @@ async function main() {
       },
     }),
 
-    // Test user's outfits
+    // Test user's outfits (these are seeded data, not test data)
     prisma.outfit.create({
       data: {
         name: 'Summer Casual Outfit',
@@ -398,7 +398,7 @@ async function main() {
         name: 'Private Summer Casual Outfit',
         description: 'A private summer outfit for testing',
         imageUrl: 'https://images.unsplash.com/photo-1515372039744-b8f02a3ae446?w=400&h=400&fit=crop',
-        tags: ['private', 'test', 'summer'],
+        tags: ['private', 'summer'], // Removed 'test' tag to prevent deletion
         isPrivate: true,
         userId: userIdMapping.test,
         items: {

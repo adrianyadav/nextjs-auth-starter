@@ -1,4 +1,5 @@
 import { Page, Locator, expect } from '@playwright/test';
+import { getDefaultOutfitData } from './test-data';
 
 // Page Object for common form interactions
 class FormPage {
@@ -356,25 +357,14 @@ interface CreateOutfitOptions {
 }
 
 export async function createOutfit(page: Page, options: CreateOutfitOptions = {}) {
+    const defaultData = getDefaultOutfitData();
     const {
-        name = `Outfit ${Date.now()}`,
-        description = 'A test outfit',
-        tags = 'test',
-        isPrivate = false,
+        name = defaultData.name,
+        description = defaultData.description,
+        tags = defaultData.tags,
+        isPrivate = defaultData.isPrivate || false,
         imageUrl = 'https://images.unsplash.com/photo-1441986300917-64674bd600d8?w=400&h=400&fit=crop',
-        items = [
-            {
-                name: 'Test Shirt',
-                category: 'UPPERWEAR',
-                description: 'A test shirt',
-                purchaseUrl: 'https://example.com/shirt'
-            },
-            {
-                name: 'Test Pants',
-                category: 'LOWERWEAR',
-                description: 'Test pants'
-            }
-        ]
+        items = defaultData.items
     } = options;
 
     const outfitForm = new OutfitFormPage(page);
