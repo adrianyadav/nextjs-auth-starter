@@ -38,6 +38,7 @@ export async function GET(_request: NextRequest) {
                 category: true,
                 description: true,
                 purchaseUrl: true,
+                imageUrl: true,
             },
             orderBy: {
                 name: 'asc',
@@ -50,6 +51,7 @@ export async function GET(_request: NextRequest) {
             category: string;
             description: string | null;
             purchaseUrl: string | null;
+            imageUrl: string | null;
             usageCount: number;
         }
 
@@ -62,6 +64,7 @@ export async function GET(_request: NextRequest) {
                     category: item.category,
                     description: item.description,
                     purchaseUrl: item.purchaseUrl,
+                    imageUrl: item.imageUrl,
                     usageCount: 1,
                 };
             } else {

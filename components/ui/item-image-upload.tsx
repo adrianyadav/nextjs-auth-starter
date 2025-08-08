@@ -10,13 +10,19 @@ import { Upload, X, Image as ImageIcon, Link as LinkIcon } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { useToast } from "./use-toast";
 
-interface ImageUploadProps {
+interface ItemImageUploadProps {
     onImageUpload: (imageUrl: string) => void;
     currentImageUrl?: string;
     className?: string;
+    itemName?: string;
 }
 
-export default function ImageUpload({ onImageUpload, currentImageUrl, className }: ImageUploadProps) {
+export default function ItemImageUpload({
+    onImageUpload,
+    currentImageUrl,
+    className,
+    itemName
+}: ItemImageUploadProps) {
     const [isUploading, setIsUploading] = useState(false);
     const [dragActive, setDragActive] = useState(false);
     const [previewUrl, setPreviewUrl] = useState<string | null>(currentImageUrl || null);
@@ -136,17 +142,13 @@ export default function ImageUpload({ onImageUpload, currentImageUrl, className 
                 <div className="relative">
                     <Card>
                         <CardContent className="p-4">
-                            <div className="flex justify-center">
-                                <div className="relative rounded-lg overflow-hidden bg-muted">
-                                    <Image
-                                        src={previewUrl}
-                                        alt="Outfit preview"
-                                        width={400}
-                                        height={400}
-                                        className="object-contain max-h-[400px] w-auto"
-                                        sizes="(max-width: 768px) 100vw, 400px"
-                                    />
-                                </div>
+                            <div className="aspect-square rounded-lg overflow-hidden bg-muted relative">
+                                <Image
+                                    src={previewUrl}
+                                    alt={`${itemName || 'Item'} image`}
+                                    fill
+                                    className="object-cover"
+                                />
                             </div>
                             <div className="flex justify-between items-center mt-3">
                                 <span className="text-sm text-muted-foreground">
@@ -202,32 +204,30 @@ export default function ImageUpload({ onImageUpload, currentImageUrl, className 
                             onDragOver={handleDrag}
                             onDrop={handleDrop}
                         >
-                            <CardContent className="p-8">
-                                <div className="text-center space-y-4">
-                                    <div className="mx-auto w-16 h-16 bg-muted rounded-full flex items-center justify-center">
-                                        <ImageIcon className="w-8 h-8 text-muted-foreground" />
+                            <CardContent className="p-6">
+                                <div className="text-center space-y-3">
+                                    <div className="mx-auto w-12 h-12 bg-muted rounded-full flex items-center justify-center">
+                                        <ImageIcon className="w-6 h-6 text-muted-foreground" />
                                     </div>
-                                    <div className="space-y-2">
-                                        <h3 className="text-lg font-medium">
-                                            Upload Outfit Image
-                                        </h3>
-                                        <p className="text-sm text-muted-foreground">
+                                    <div className="space-y-1">
+                                        <h4 className="text-sm font-medium">
+                                            Upload Item Image
+                                        </h4>
+                                        <p className="text-xs text-muted-foreground">
                                             Drag and drop an image here, or click to select
                                         </p>
                                         <p className="text-xs text-muted-foreground">
                                             Supports JPEG, PNG, WebP (max 5MB)
                                         </p>
-                                        <p className="text-xs text-primary font-medium">
-                                            ⚠️ Image is required to create an outfit
-                                        </p>
                                     </div>
                                     <Button
                                         type="button"
                                         variant="outline"
+                                        size="sm"
                                         onClick={() => fileInputRef.current?.click()}
                                         disabled={isUploading}
                                     >
-                                        <Upload className="h-4 w-4 mr-2" />
+                                        <Upload className="h-3 w-3 mr-2" />
                                         {isUploading ? "Uploading..." : "Choose Image"}
                                     </Button>
                                 </div>
@@ -235,10 +235,10 @@ export default function ImageUpload({ onImageUpload, currentImageUrl, className 
                         </Card>
                     ) : (
                         <div className="space-y-2">
-                            <Label htmlFor="imageUrl">Image URL</Label>
+                            <Label htmlFor="itemImageUrl">Image URL</Label>
                             <Input
                                 type="url"
-                                id="imageUrl"
+                                id="itemImageUrl"
                                 placeholder="https://example.com/image.jpg"
                                 value={imageUrl}
                                 onChange={(e) => handleUrlChange(e.target.value)}
@@ -246,13 +246,10 @@ export default function ImageUpload({ onImageUpload, currentImageUrl, className 
                             <p className="text-xs text-muted-foreground">
                                 Enter a direct link to an image (JPEG, PNG, WebP, GIF)
                             </p>
-                            <p className="text-xs text-primary font-medium">
-                                ⚠️ Image is required to create an outfit
-                            </p>
                         </div>
                     )}
                 </div>
             )}
         </div>
     );
-} 
+}

@@ -11,6 +11,8 @@ import { Badge } from "@/components/ui/badge";
 import EditOutfitModal from "@/components/ui/edit-outfit-modal";
 import { useToast } from "@/components/ui/use-toast";
 import { ArrowLeft } from "lucide-react";
+import { sortItemsByCategory, getCategoryColors } from "@/lib/constants";
+import { useSession } from "next-auth/react";
 
 interface OutfitItem {
     id: number;
@@ -18,6 +20,7 @@ interface OutfitItem {
     category: string;
     description?: string;
     purchaseUrl?: string;
+    imageUrl?: string;
 }
 
 interface Outfit {
@@ -38,9 +41,11 @@ interface Outfit {
 export default function OutfitPage({ params }: { params: Promise<{ id: string }> }) {
     const router = useRouter();
     const { id } = use(params);
+    const { data: session } = useSession();
     const [outfit, setOutfit] = useState<Outfit | null>(null);
     const [isLoading, setIsLoading] = useState(true);
     const [isSaving, setIsSaving] = useState(false);
+    const [isSharing, setIsSharing] = useState(false);
     const [isOwned, setIsOwned] = useState(false);
     const { toast } = useToast();
 
@@ -114,6 +119,57 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
         setOutfit(updatedOutfit);
     };
 
+    const handleShare = async () => {
+        if (isSharing || !outfit) return;
+
+        setIsSharing(true);
+        try {
+            const response = await fetch(`/api/outfits/${outfit.id}/share`, {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+            });
+
+            if (response.ok) {
+                const { shareUrl } = await response.json();
+
+                // Copy to clipboard
+                await navigator.clipboard.writeText(shareUrl);
+
+                toast({
+                    title: "Share link copied!",
+                    description: "The share link has been copied to your clipboard.",
+                });
+            } else {
+                const errorData = await response.json();
+                toast({
+                    variant: "destructive",
+                    title: "Error",
+                    description: errorData.error || "Failed to generate share link",
+                });
+            }
+        } catch (err) {
+            console.error("Error sharing outfit:", err);
+            toast({
+                variant: "destructive",
+                title: "Error",
+                description: "Failed to generate share link. Please try again later.",
+            });
+        } finally {
+            setIsSharing(false);
+        }
+    };
+
+    const formatDate = (date: string) => {
+        return new Date(date).toLocaleDateString("en-US", {
+            year: "numeric",
+            month: "long",
+            day: "numeric",
+        });
+    };
+
     if (isLoading) {
         return (
             <div className="min-h-screen bg-background flex items-center justify-center">
@@ -132,28 +188,54 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
     }
 
     return (
-        <div className="min-h-screen bg-background flex flex-col items-center justify-start p-8">
-            <div className="w-full max-w-4xl">
-                <Card>
-                    <CardHeader>
-                        {/* Action buttons container */}
-                        <div className="flex items-center justify-between mb-4">
-                            <Button asChild variant="outline" className="w-fit">
-                                <Link href="/my-outfits" className="flex items-center gap-2">
-                                    <ArrowLeft className="h-4 w-4" />
-                                    Back
-                                </Link>
-                            </Button>
+        <div className="min-h-screen bg-background p-8">
+            <div className="max-w-4xl mx-auto">
+                {/* Header with actions */}
+                <div className="mb-8">
+                    <div className="flex items-center justify-between mb-4">
+                        <Button asChild variant="outline" className="w-fit">
+                            <Link href="/my-outfits" className="flex items-center gap-2">
+                                <ArrowLeft className="h-4 w-4" />
+                                Back
+                            </Link>
+                        </Button>
 
-                            {/* Edit actions */}
-                            <div className="flex items-center gap-2">
-                                {isOwned ? (
+                        {/* Action buttons */}
+                        <div className="flex items-center gap-2">
+                            {isOwned ? (
+                                <>
                                     <EditOutfitModal
                                         outfit={outfit}
                                         onOutfitUpdated={handleOutfitUpdated}
                                     />
-                                ) : (
-                                    !outfit.isPrivate && (
+                                    {!outfit.isPrivate && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={handleShare}
+                                            disabled={isSharing}
+                                            className="border-royal/30 text-royal hover:bg-royal hover:text-white transition-all duration-300 h-9"
+                                            data-testid="share-outfit-button"
+                                        >
+                                            {isSharing ? "Sharing..." : "Share"}
+                                        </Button>
+                                    )}
+                                </>
+                            ) : (
+                                <>
+                                    {!outfit.isPrivate && (
+                                        <Button
+                                            variant="outline"
+                                            size="sm"
+                                            onClick={handleShare}
+                                            disabled={isSharing}
+                                            className="border-royal/30 text-royal hover:bg-royal hover:text-white transition-all duration-300 h-9"
+                                            data-testid="share-outfit-button"
+                                        >
+                                            {isSharing ? "Sharing..." : "Share"}
+                                        </Button>
+                                    )}
+                                    {!outfit.isPrivate && session && (
                                         <Button
                                             variant="default"
                                             size="sm"
@@ -164,47 +246,57 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                                         >
                                             {isSaving ? "Saving..." : "Save"}
                                         </Button>
-                                    )
-                                )}
-                            </div>
+                                    )}
+                                </>
+                            )}
                         </div>
+                    </div>
 
-                        <CardTitle className="text-4xl">{outfit.name}</CardTitle>
-                    </CardHeader>
-                    <CardContent className="space-y-6">
-                        {outfit.imageUrl && (
-                            <div>
+                    <h1 className="text-4xl font-bold mb-2">{outfit.name}</h1>
+                    {outfit.user?.name && (
+                        <p className="text-muted-foreground">
+                            Created by {outfit.user.name}
+                        </p>
+                    )}
+                    <p className="text-sm text-muted-foreground">
+                        {formatDate(outfit.createdAt)}
+                    </p>
+                </div>
+
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+                    {/* Outfit Image */}
+                    {outfit.imageUrl && (
+                        <div className="space-y-4">
+                            <h2 className="text-2xl font-semibold">Outfit</h2>
+                            <div className="relative rounded-lg overflow-hidden">
                                 <Image
                                     src={outfit.imageUrl}
                                     alt={outfit.name}
-                                    width={800}
+                                    width={600}
                                     height={600}
-                                    className="w-full max-w-2xl rounded-lg shadow-md"
+                                    className="object-contain max-h-[600px] w-auto"
+                                    sizes="(max-width: 768px) 100vw, 600px"
+                                    priority={true}
+                                    quality={85}
+                                    placeholder="blur"
+                                    blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxEAPwCdABmX/9k="
                                 />
                             </div>
-                        )}
-
-                        <div>
-                            <CardDescription>by {outfit.user?.name || "Anonymous"}</CardDescription>
-                            <p className="text-xs text-muted-foreground">
-                                {new Date(outfit.createdAt).toLocaleDateString("en-US", {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                })}
-                            </p>
                         </div>
+                    )}
 
+                    {/* Outfit Details */}
+                    <div className="space-y-6">
                         {outfit.description && (
                             <div>
-                                <h2 className="text-xl font-semibold text-foreground mb-2">Description</h2>
-                                <p className="text-muted-foreground leading-relaxed">{outfit.description}</p>
+                                <h2 className="text-2xl font-semibold mb-3">Description</h2>
+                                <p className="text-muted-foreground">{outfit.description}</p>
                             </div>
                         )}
 
                         {outfit.tags && outfit.tags.length > 0 && (
                             <div>
-                                <h2 className="text-xl font-semibold text-foreground mb-2">Tags</h2>
+                                <h2 className="text-2xl font-semibold mb-3">Tags</h2>
                                 <div className="flex flex-wrap gap-2">
                                     {outfit.tags.map((tag, index) => (
                                         <Badge key={index} variant="secondary">
@@ -217,43 +309,62 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
 
                         {outfit.items && outfit.items.length > 0 && (
                             <div>
-                                <h2 className="text-xl font-semibold text-foreground mb-2">Items</h2>
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                                    {outfit.items.map((item) => (
-                                        <Card key={item.id} data-testid={`outfit-item-${item.id}`}>
-                                            <CardHeader className="pb-2">
-                                                <CardTitle className="text-lg" data-testid={`outfit-item-name-${item.id}`}>
-                                                    {item.name}
-                                                </CardTitle>
-                                                <CardDescription className="capitalize" data-testid={`outfit-item-category-${item.id}`}>
-                                                    {item.category.toLowerCase()}
-                                                </CardDescription>
-                                            </CardHeader>
-                                            <CardContent>
-                                                {item.description && (
-                                                    <p className="text-sm text-muted-foreground mb-2" data-testid={`outfit-item-description-${item.id}`}>
-                                                        {item.description}
-                                                    </p>
-                                                )}
-                                                {item.purchaseUrl && (
-                                                    <a
-                                                        href={item.purchaseUrl}
-                                                        target="_blank"
-                                                        rel="noopener noreferrer"
-                                                        className="text-sm text-blue-600 hover:text-blue-800 underline"
-                                                        data-testid={`outfit-item-purchase-url-${item.id}`}
+                                <h2 className="text-2xl font-semibold mb-3">Items</h2>
+                                <div className="space-y-4">
+                                    {sortItemsByCategory(outfit.items).map((item) => {
+                                        const categoryColors = getCategoryColors(item.category);
+                                        return (
+                                            <Card key={item.id} data-testid={`outfit-item-${item.id}`}>
+                                                <CardHeader className="pb-2">
+                                                    <CardTitle className="text-lg" data-testid={`outfit-item-name-${item.id}`}>
+                                                        {item.name}
+                                                    </CardTitle>
+                                                    <CardDescription
+                                                        className="capitalize"
+                                                        data-testid={`outfit-item-category-${item.id}`}
+                                                        style={{ color: categoryColors.primary }}
                                                     >
-                                                        View Purchase Link →
-                                                    </a>
-                                                )}
-                                            </CardContent>
-                                        </Card>
-                                    ))}
+                                                        {item.category.toLowerCase().replace('_', ' ')}
+                                                    </CardDescription>
+                                                </CardHeader>
+                                                <CardContent>
+                                                    {item.imageUrl && (
+                                                        <div className="mb-3">
+                                                            <div className="aspect-square w-full max-w-48 rounded-lg overflow-hidden bg-muted relative">
+                                                                <Image
+                                                                    src={item.imageUrl}
+                                                                    alt={item.name}
+                                                                    fill
+                                                                    className="object-cover"
+                                                                    sizes="(max-width: 768px) 100vw, 192px"
+                                                                />
+                                                            </div>
+                                                        </div>
+                                                    )}
+                                                    {item.description && (
+                                                        <p className="text-sm text-muted-foreground mb-2" data-testid={`outfit-item-description-${item.id}`}>
+                                                            {item.description}
+                                                        </p>
+                                                    )}
+                                                    {item.purchaseUrl && (
+                                                        <a
+                                                            href={item.purchaseUrl}
+                                                            target="_blank"
+                                                            rel="noopener noreferrer"
+                                                            className="text-sm text-royal hover:underline"
+                                                        >
+                                                            View Item →
+                                                        </a>
+                                                    )}
+                                                </CardContent>
+                                            </Card>
+                                        );
+                                    })}
                                 </div>
                             </div>
                         )}
-                    </CardContent>
-                </Card>
+                    </div>
+                </div>
             </div>
         </div>
     );

@@ -2,8 +2,9 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { X } from "lucide-react";
 import { InputField, CategorySelectField, ItemNameField } from "./form-fields";
-import { ITEM_CATEGORIES } from "@/lib/constants";
+import { ITEM_CATEGORIES, getCategoryColors } from "@/lib/constants";
 import { OutfitItem } from "@/hooks/use-outfit-items";
+import ItemImageUpload from "./item-image-upload";
 
 interface OutfitItemCardProps {
     item: OutfitItem;
@@ -20,6 +21,8 @@ export function OutfitItemCard({
     onRemove,
     testIdPrefix = "item"
 }: OutfitItemCardProps) {
+    const categoryColors = getCategoryColors(item.category);
+
     return (
         <Card className="p-6 border-2 border-border/50 bg-card/50 shadow-lg">
             <div className="flex items-center justify-between mb-6">
@@ -27,7 +30,10 @@ export function OutfitItemCard({
                     <div className="w-6 h-6 bg-royal/20 rounded-full flex items-center justify-center">
                         <span className="text-sm font-bold text-royal">{index + 1}</span>
                     </div>
-                    <h4 className="font-semibold text-lg text-foreground">
+                    <h4
+                        className="font-semibold text-lg"
+                        style={{ color: categoryColors.primary }}
+                    >
                         {item.category ?
                             `${ITEM_CATEGORIES.find(cat => cat.value === item.category)?.label || 'Clothing Item'}` :
                             'Clothing Item'
@@ -82,6 +88,15 @@ export function OutfitItemCard({
                     onChange={(e) => onUpdate(index, "purchaseUrl", e.target.value)}
                     placeholder="https://store.com/item"
                     testId={`${testIdPrefix}-purchase-url-input-${index}`}
+                />
+            </div>
+
+            <div className="mt-6">
+                <h5 className="text-sm font-medium text-foreground mb-3">Item Image</h5>
+                <ItemImageUpload
+                    onImageUpload={(imageUrl) => onUpdate(index, "imageUrl", imageUrl)}
+                    currentImageUrl={item.imageUrl}
+                    itemName={item.name}
                 />
             </div>
         </Card>

@@ -6,6 +6,7 @@ export interface OutfitItem {
     category: string;
     description: string;
     purchaseUrl: string;
+    imageUrl?: string;
 }
 
 export function useOutfitItems(initialItems: OutfitItem[] = []) {
@@ -41,6 +42,7 @@ export function useOutfitItems(initialItems: OutfitItem[] = []) {
                 category: previousItem.category,
                 description: previousItem.description || "",
                 purchaseUrl: previousItem.purchaseUrl || "",
+                imageUrl: previousItem.imageUrl,
             },
         ]);
     };

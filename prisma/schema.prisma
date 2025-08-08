@@ -69,6 +69,7 @@ model OutfitItem {
   category    ItemCategory
   description String?
   purchaseUrl String?
+  imageUrl    String?
   outfitId    Int
   outfit      Outfit       @relation(fields: [outfitId], references: [id], onDelete: Cascade)
 }

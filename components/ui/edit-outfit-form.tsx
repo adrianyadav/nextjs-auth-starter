@@ -4,12 +4,19 @@ import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Card, CardDescription } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
+import {
+    Accordion,
+    AccordionContent,
+    AccordionItem,
+    AccordionTrigger,
+} from "@/components/ui/accordion";
 import ImageUpload from "@/components/ui/image-upload";
-import { Plus, PersonStanding, Clock } from "lucide-react";
+import { Plus, PersonStanding, Clock, ChevronDown } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
 import { InputField, TextareaField } from "@/components/ui/form-fields";
 import { OutfitItemCard } from "@/components/ui/outfit-item-card";
 import { useOutfitItems } from "@/hooks/use-outfit-items";
+import { sortItemsByCategory } from "@/lib/constants";
 
 interface OutfitItem {
     id: number;
@@ -17,6 +24,7 @@ interface OutfitItem {
     category: string;
     description?: string;
     purchaseUrl?: string;
+    imageUrl?: string;
 }
 
 interface PreviousItem {
@@ -69,6 +77,7 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
         category: item.category,
         description: item.description || "",
         purchaseUrl: item.purchaseUrl || "",
+        imageUrl: item.imageUrl,
     }));
     const { items, addItem, removeItem, updateItem, addItemFromPrevious } = useOutfitItems(initialItems);
 
@@ -293,16 +302,59 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
                     </Card>
                 )}
 
-                {items.map((item, index) => (
-                    <OutfitItemCard
-                        key={item.id || index}
-                        item={item}
-                        index={index}
-                        onUpdate={updateItem}
-                        onRemove={removeItem}
-                        testIdPrefix="edit-item"
-                    />
-                ))}
+                {/* Accordion for Items */}
+                {items.length > 0 ? (
+                    <Accordion type="multiple" className="space-y-2">
+                        {sortItemsByCategory(items).map((item, index) => (
+                            <AccordionItem
+                                key={item.id || index}
+                                value={`item-${item.id || index}`}
+                                className="border border-border/50 rounded-lg"
+                            >
+                                <AccordionTrigger
+                                    className="px-4 py-3 hover:no-underline"
+                                    data-testid={`edit-item-accordion-trigger-${index}`}
+                                >
+                                    <div className="flex items-center justify-between w-full pr-4">
+                                        <div className="flex items-center gap-3">
+                                            <div className="w-6 h-6 bg-gradient-royal rounded-md flex items-center justify-center">
+                                                <span className="text-xs text-white font-medium">
+                                                    {index + 1}
+                                                </span>
+                                            </div>
+                                            <div className="text-left">
+                                                <h4 className="font-medium text-foreground">
+                                                    {item.name || "Untitled Item"}
+                                                </h4>
+                                                <p className="text-sm text-muted-foreground capitalize">
+                                                    {item.category || "No category"}
+                                                </p>
+                                            </div>
+                                        </div>
+                                        <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
+                                    </div>
+                                </AccordionTrigger>
+                                <AccordionContent className="px-4 pb-4">
+                                    <OutfitItemCard
+                                        item={item}
+                                        index={index}
+                                        onUpdate={updateItem}
+                                        onRemove={removeItem}
+                                        testIdPrefix="edit-item"
+                                    />
+                                </AccordionContent>
+                            </AccordionItem>
+                        ))}
+                    </Accordion>
+                ) : (
+                    <Card className="p-8 border-2 border-dashed border-border/50 bg-muted/20">
+                        <div className="text-center space-y-2">
+                            <Plus className="w-8 h-8 text-muted-foreground mx-auto" />
+                            <p className="text-muted-foreground">No items added yet</p>
+                            <p className="text-sm text-muted-foreground">Click "Add Item" to get started</p>
+                        </div>
+                    </Card>
+                )}
             </div>
 
             <div className="flex justify-end space-x-4 pt-6 border-t border-border/50">

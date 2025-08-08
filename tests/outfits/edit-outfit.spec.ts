@@ -102,6 +102,11 @@ test.describe('Edit Outfit', () => {
         await editButton.click();
         await page.waitForSelector('[data-testid="edit-outfit-form"]', { timeout: 10000 });
 
+        // Expand the first accordion item to access the form fields
+        const firstAccordionTrigger = page.locator('[data-testid="edit-item-accordion-trigger-0"]');
+        await firstAccordionTrigger.click();
+        await page.waitForTimeout(500); // Wait for accordion to expand
+
         // Edit the first item's name
         const itemNameInput = page.locator('[data-testid="edit-item-name-input-0"]');
         await itemNameInput.fill('Updated Cotton T-Shirt');
@@ -134,6 +139,11 @@ test.describe('Edit Outfit', () => {
         const editButton = page.locator('[data-testid="edit-outfit-button"]');
         await editButton.click();
         await page.waitForSelector('[data-testid="edit-outfit-form"]', { timeout: 10000 });
+
+        // Expand the first accordion item to access the form fields
+        const firstAccordionTrigger = page.locator('[data-testid="edit-item-accordion-trigger-0"]');
+        await firstAccordionTrigger.click();
+        await page.waitForTimeout(500); // Wait for accordion to expand
 
         // Remove the first item - fix the test ID
         const removeButton = page.locator('[data-testid="edit-item-remove-button-0"]');

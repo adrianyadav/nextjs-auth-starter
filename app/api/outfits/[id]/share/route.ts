@@ -27,28 +27,18 @@ export async function POST(
             );
         }
 
-        // Check if outfit exists and belongs to the user
+        // Check if outfit exists and is public
         const outfit = await prisma.outfit.findFirst({
             where: {
                 id: outfitId,
-                user: {
-                    email: session.user.email,
-                },
+                isPrivate: false, // Only allow sharing public outfits
             },
         });
 
         if (!outfit) {
             return NextResponse.json(
-                { error: "Outfit not found" },
+                { error: "Outfit not found or is private" },
                 { status: 404 }
-            );
-        }
-
-        // Check if outfit is private
-        if (outfit.isPrivate) {
-            return NextResponse.json(
-                { error: "Cannot share private outfits" },
-                { status: 400 }
             );
         }
 

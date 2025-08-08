@@ -23,3 +23,56 @@ export const getItemPlaceholder = (category?: string): string => {
     if (!category) return ITEM_PLACEHOLDERS.DEFAULT;
     return ITEM_PLACEHOLDERS[category as keyof typeof ITEM_PLACEHOLDERS] || ITEM_PLACEHOLDERS.DEFAULT;
 };
+
+export const ITEM_CATEGORY_COLORS = {
+    HEADWEAR: {
+        primary: "#8B4513", // Saddle Brown - warm, earthy tone for hats
+        secondary: "#DEB887", // Burlywood - lighter accent
+        background: "#FEFCF8", // Very light warm tint
+    },
+    UPPERWEAR: {
+        primary: "#1E3A8A", // Navy Blue - classic and professional
+        secondary: "#3B82F6", // Modern Blue - clean accent
+        background: "#F8FBFF", // Very light blue tint
+    },
+    LOWERWEAR: {
+        primary: "#2F4F4F", // Dark Slate Gray - sophisticated pants color
+        secondary: "#708090", // Slate Gray - medium accent
+        background: "#F8FAFC", // Very light gray tint
+    },
+    FOOTWEAR: {
+        primary: "#8B0000", // Dark Red - bold shoe color
+        secondary: "#DC143C", // Crimson - vibrant accent
+        background: "#FFF8F8", // Very light red tint
+    },
+    ACCESSORIES: {
+        primary: "#059669", // Deep Green - sophisticated and premium
+        secondary: "#10B981", // Modern Green - elegant accent
+        background: "#FFFEFF", // Very light gold tint
+    },
+    SOCKS: {
+        primary: "#9370DB", // Medium Purple - fun sock color
+        secondary: "#DDA0DD", // Plum - playful accent
+        background: "#FDFAFF", // Very light purple tint
+    },
+    OTHER: {
+        primary: "#696969", // Dim Gray - neutral for miscellaneous
+        secondary: "#A9A9A9", // Dark Gray - subtle accent
+        background: "#FAFAFA", // Very light neutral tint
+    },
+} as const;
+
+// Helper function to get colors for a category
+export const getCategoryColors = (category: string) => {
+    return ITEM_CATEGORY_COLORS[category as keyof typeof ITEM_CATEGORY_COLORS] || ITEM_CATEGORY_COLORS.OTHER;
+};
+
+// Helper function to sort items by category order
+export const sortItemsByCategory = (items: any[]) => {
+    const categoryOrder = ITEM_CATEGORIES.map(cat => cat.value);
+    return items.sort((a, b) => {
+        const aIndex = categoryOrder.indexOf(a.category);
+        const bIndex = categoryOrder.indexOf(b.category);
+        return aIndex - bIndex;
+    });
+};

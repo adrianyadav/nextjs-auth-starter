@@ -67,6 +67,7 @@ export async function POST(
                         category: item.category,
                         description: item.description,
                         purchaseUrl: item.purchaseUrl,
+                        imageUrl: item.imageUrl,
                     }))
                 }
             },

@@ -11,6 +11,7 @@ import { useToast } from "@/components/ui/use-toast";
 import { InputField, TextareaField } from "@/components/ui/form-fields";
 import { OutfitItemCard } from "@/components/ui/outfit-item-card";
 import { useOutfitItems } from "@/hooks/use-outfit-items";
+import { sortItemsByCategory } from "@/lib/constants";
 
 interface PreviousItem {
     name: string;
@@ -317,7 +318,7 @@ export default function NewOutfitPage() {
                                     </div>
                                 )}
 
-                                {items.map((item, index) => (
+                                {sortItemsByCategory(items).map((item, index) => (
                                     <OutfitItemCard
                                         key={index}
                                         item={item}

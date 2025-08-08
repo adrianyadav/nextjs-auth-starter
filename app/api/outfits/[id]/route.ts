@@ -30,7 +30,13 @@ export async function GET(
             );
         }
 
-        return NextResponse.json(outfit);
+        // Include userId in the response for ownership checking
+        const outfitWithUserId = {
+            ...outfit,
+            userId: outfit.userId
+        };
+
+        return NextResponse.json(outfitWithUserId);
     } catch (error) {
         console.error("Error fetching outfit:", error);
         return NextResponse.json(

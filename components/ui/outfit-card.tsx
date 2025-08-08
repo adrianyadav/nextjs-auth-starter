@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import ConfirmDialog from "@/components/ui/confirm-dialog";
 import { AdminDeleteButton } from "@/components/ui/admin-delete-button";
 import { useAdmin } from "@/hooks/use-admin";
+import { sortItemsByCategory, getCategoryColors } from "@/lib/constants";
 
 interface OutfitItem {
     id: number;
@@ -17,6 +18,7 @@ interface OutfitItem {
     category: string;
     description?: string;
     purchaseUrl?: string;
+    imageUrl?: string;
 }
 
 interface OutfitCardProps {
@@ -97,6 +99,12 @@ export default function OutfitCard({
                                 alt={outfit.name}
                                 fill
                                 className="object-cover transition-transform duration-500 group-hover:scale-110"
+                                sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
+                                priority={false}
+                                // Add these for better image handling:
+                                quality={85}
+                                placeholder="blur"
+                                blurDataURL="data:image/jpeg;base64,/9j/4AAQSkZJRgABAQAAAQABAAD/2wBDAAYEBQYFBAYGBQYHBwYIChAKCgkJChQODwwQFxQYGBcUFhYaHSUfGhsjHBYWICwgIyYnKSopGR8tMC0oMCUoKSj/2wBDAQcHBwoIChMKChMoGhYaKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCgoKCj/wAARCAABAAEDASIAAhEBAxEB/8QAFQABAQAAAAAAAAAAAAAAAAAAAAv/xAAUEAEAAAAAAAAAAAAAAAAAAAAA/8QAFQEBAQAAAAAAAAAAAAAAAAAAAAX/xAAUEQEAAAAAAAAAAAAAAAAAAAAA/9oADAMBAAIRAxAAPwCdABmX/9k="
                             />
 
                         </>
@@ -221,13 +229,41 @@ export default function OutfitCard({
                                 <span>Outfit Details</span>
                             </div>
                             <div className="grid grid-cols-1 gap-2">
-                                {outfit.items.slice(0, 3).map((item) => (
-                                    <div key={item.id} className="text-sm text-muted-foreground flex items-center gap-2 p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors duration-200">
-                                        <div className="w-2 h-2 bg-royal/60 rounded-full"></div>
-                                        <span className="font-medium">{item.name}</span>
-                                        <span className="text-xs text-muted-foreground">({item.category.toLowerCase()})</span>
-                                    </div>
-                                ))}
+                                {sortItemsByCategory(outfit.items).slice(0, 3).map((item) => {
+                                    const categoryColors = getCategoryColors(item.category);
+                                    return (
+                                        <div
+                                            key={item.id}
+                                            className="text-sm text-muted-foreground flex items-center gap-2 p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors duration-200"
+                                        >
+                                            {item.imageUrl ? (
+                                                <div className="w-8 h-8 rounded-md overflow-hidden bg-muted flex-shrink-0 relative">
+                                                    <Image
+                                                        src={item.imageUrl}
+                                                        alt={item.name}
+                                                        fill
+                                                        className="object-cover"
+                                                        sizes="32px"
+                                                    />
+                                                </div>
+                                            ) : (
+                                                <div
+                                                    className="w-2 h-2 rounded-full"
+                                                    style={{ backgroundColor: categoryColors.primary }}
+                                                ></div>
+                                            )}
+                                            <span className="font-medium text-foreground">
+                                                {item.name}
+                                            </span>
+                                            <span
+                                                className="text-xs"
+                                                style={{ color: categoryColors.primary }}
+                                            >
+                                                ({item.category.toLowerCase()})
+                                            </span>
+                                        </div>
+                                    );
+                                })}
                                 {outfit.items.length > 3 && (
                                     <div className="text-sm text-muted-foreground p-2 rounded-lg bg-muted/30 hover:bg-muted/50 transition-colors duration-200">
                                         +{outfit.items.length - 3} more items
