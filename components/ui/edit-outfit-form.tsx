@@ -351,7 +351,7 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
                         <div className="text-center space-y-2">
                             <Plus className="w-8 h-8 text-muted-foreground mx-auto" />
                             <p className="text-muted-foreground">No items added yet</p>
-                            <p className="text-sm text-muted-foreground">Click "Add Item" to get started</p>
+                            <p className="text-sm text-muted-foreground">Click &ldquo;Add Item&rdquo; to get started</p>
                         </div>
                     </Card>
                 )}

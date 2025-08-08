@@ -68,6 +68,7 @@ export const getCategoryColors = (category: string) => {
 };
 
 // Helper function to sort items by category order
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
 export const sortItemsByCategory = (items: any[]) => {
     const categoryOrder = ITEM_CATEGORIES.map(cat => cat.value);
     return items.sort((a, b) => {
