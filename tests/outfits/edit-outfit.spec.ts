@@ -107,7 +107,7 @@ test.describe('Edit Outfit', () => {
         await itemNameInput.fill('Updated Cotton T-Shirt');
 
         // Save the changes
-        const saveButton = page.locator('[data-testid="edit-outfit-save-button"]');
+        const saveButton = page.locator('[data-testid="save-edit-button"]');
         await saveButton.click();
 
         // Wait for the modal to close
@@ -135,12 +135,12 @@ test.describe('Edit Outfit', () => {
         await editButton.click();
         await page.waitForSelector('[data-testid="edit-outfit-form"]', { timeout: 10000 });
 
-        // Remove the first item
-        const removeButton = page.locator('[data-testid="edit-remove-item-button-0"]');
+        // Remove the first item - fix the test ID
+        const removeButton = page.locator('[data-testid="edit-item-remove-button-0"]');
         await removeButton.click();
 
         // Save the changes
-        const saveButton = page.locator('[data-testid="edit-outfit-save-button"]');
+        const saveButton = page.locator('[data-testid="save-edit-button"]');
         await saveButton.click();
 
         // Wait for the modal to close

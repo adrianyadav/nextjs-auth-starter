@@ -1,16 +1,15 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
-import { Card, CardContent, CardDescription } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { Card, CardDescription } from "@/components/ui/card";
 import { Checkbox } from "@/components/ui/checkbox";
 import ImageUpload from "@/components/ui/image-upload";
-import { Plus, X, PersonStanding } from "lucide-react";
+import { Plus, PersonStanding, Clock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { InputField, TextareaField } from "@/components/ui/form-fields";
+import { OutfitItemCard } from "@/components/ui/outfit-item-card";
+import { useOutfitItems } from "@/hooks/use-outfit-items";
 
 interface OutfitItem {
     id: number;
@@ -18,6 +17,14 @@ interface OutfitItem {
     category: string;
     description?: string;
     purchaseUrl?: string;
+}
+
+interface PreviousItem {
+    name: string;
+    category: string;
+    description: string;
+    purchaseUrl: string;
+    usageCount: number;
 }
 
 interface Outfit {
@@ -50,46 +57,48 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
         tags: outfit.tags.join(", "),
         isPrivate: outfit.isPrivate,
     });
-    const [items, setItems] = useState<OutfitItem[]>(outfit.items.map(item => ({
+    const [previousItems, setPreviousItems] = useState<PreviousItem[]>([]);
+    const [showQuickAdd, setShowQuickAdd] = useState(false);
+    const [isLoadingPreviousItems, setIsLoadingPreviousItems] = useState(false);
+    const { toast } = useToast();
+
+    // Use the custom hook for item management with initial items
+    const initialItems = outfit.items.map(item => ({
         id: item.id,
         name: item.name,
         category: item.category,
         description: item.description || "",
         purchaseUrl: item.purchaseUrl || "",
-    })));
-    const { toast } = useToast();
+    }));
+    const { items, addItem, removeItem, updateItem, addItemFromPrevious } = useOutfitItems(initialItems);
 
-    const itemCategories = [
-        { value: "HEADWEAR", label: "Headwear" },
-        { value: "UPPERWEAR", label: "Upperwear" },
-        { value: "LOWERWEAR", label: "Lowerwear" },
-        { value: "FOOTWEAR", label: "Footwear" },
-        { value: "ACCESSORIES", label: "Accessories" },
-        { value: "SOCKS", label: "Socks" },
-        { value: "OTHER", label: "Other" },
-    ];
+    // Fetch previous items on component mount
+    useEffect(() => {
+        fetchPreviousItems();
+    }, []);
 
-    const addItem = () => {
-        setItems([
-            ...items,
-            {
-                name: "",
-                category: "",
-                description: "",
-                purchaseUrl: "",
-                id: Date.now()
-            },
-        ]);
+    const fetchPreviousItems = async () => {
+        setIsLoadingPreviousItems(true);
+        try {
+            const response = await fetch("/api/my-items");
+            if (response.ok) {
+                const data = await response.json();
+                setPreviousItems(data);
+            }
+        } catch (error) {
+            console.error("Error fetching previous items:", error);
+        } finally {
+            setIsLoadingPreviousItems(false);
+        }
     };
 
-    const removeItem = (index: number) => {
-        setItems(items.filter((_, i) => i !== index));
-    };
-
-    const updateItem = (index: number, field: keyof OutfitItem, value: string) => {
-        const newItems = [...items];
-        newItems[index] = { ...newItems[index], [field]: value };
-        setItems(newItems);
+    const handleAddItemFromPrevious = (previousItem: PreviousItem) => {
+        addItemFromPrevious(previousItem);
+        setShowQuickAdd(false);
+        toast({
+            title: "Item added",
+            description: `${previousItem.name} has been added to your outfit.`,
+        });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -107,14 +116,19 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
         if (!formData.imageUrl?.trim()) {
             toast({
                 title: "Missing image",
-                description: "Please upload an image or provide an image URL. Images are required to help visualize your outfit.",
+                description: "Please upload an image or provide an image URL.",
             });
             return;
         }
 
         try {
             const tags = formData.tags.split(",").map(tag => tag.trim()).filter(tag => tag.length > 0);
-            const validItems = items.filter(item => item.name && item.category);
+            const validItems = items
+                .filter(item => item.name && item.category)
+                .map(item => ({
+                    ...item,
+                    id: item.id || 0, // Ensure id is always a number
+                }));
 
             const updatedOutfit = {
                 ...outfit,
@@ -123,13 +137,7 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
                 imageUrl: formData.imageUrl,
                 tags,
                 isPrivate: formData.isPrivate,
-                items: validItems.map(item => ({
-                    id: item.id,
-                    name: item.name,
-                    category: item.category,
-                    description: item.description || undefined,
-                    purchaseUrl: item.purchaseUrl || undefined,
-                })),
+                items: validItems,
             };
 
             onSave(updatedOutfit);
@@ -144,8 +152,7 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
     };
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>) => {
-        const { name, value } = e.target;
-        setFormData(prev => ({ ...prev, [name]: value }));
+        setFormData(prev => ({ ...prev, [e.target.name]: e.target.value }));
     };
 
     const handleCheckboxChange = (checked: boolean) => {
@@ -155,53 +162,48 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
     return (
         <form onSubmit={handleSubmit} className="space-y-6" data-testid="edit-outfit-form">
             <div className="space-y-4">
-
-                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div className="space-y-3">
-                        <Label htmlFor="name" className="text-sm font-semibold text-foreground">Outfit Name *</Label>
-                        <Input
-                            type="text"
-                            id="name"
-                            name="name"
-                            required
-                            value={formData.name}
-                            onChange={handleChange}
-                            placeholder="Enter outfit name"
-                            className="h-12 text-lg border-2 border-border/50 focus:border-royal transition-colors"
-                            data-testid="edit-outfit-name-input"
-                        />
+                <div className="flex items-center gap-3 mb-6">
+                    <div className="w-8 h-8 bg-gradient-royal rounded-lg flex items-center justify-center">
+                        <PersonStanding className="w-4 h-4 text-white" />
                     </div>
-
-                    <div className="space-y-3">
-                        <Label htmlFor="tags" className="text-sm font-semibold text-foreground">Tags (comma-separated)</Label>
-                        <Input
-                            type="text"
-                            id="tags"
-                            name="tags"
-                            value={formData.tags}
-                            onChange={handleChange}
-                            placeholder="casual, summer, formal"
-                            className="h-12 text-lg border-2 border-border/50 focus:border-royal transition-colors"
-                            data-testid="edit-outfit-tags-input"
-                        />
-                    </div>
+                    <h3 className="text-2xl font-bold text-foreground">Basic Information</h3>
                 </div>
 
-                <div className="space-y-3">
-                    <Label htmlFor="description" className="text-sm font-semibold text-foreground">Description</Label>
-                    <Textarea
-                        id="description"
-                        name="description"
-                        value={formData.description}
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <InputField
+                        label="Outfit Name"
+                        required
+                        id="name"
+                        name="name"
+                        value={formData.name}
                         onChange={handleChange}
-                        placeholder="Describe your outfit..."
-                        className="min-h-[100px] text-lg border-2 border-border/50 focus:border-royal transition-colors resize-none"
-                        data-testid="edit-outfit-description-textarea"
+                        placeholder="Enter outfit name"
+                        testId="edit-outfit-name-input"
+                    />
+
+                    <InputField
+                        label="Tags (comma-separated)"
+                        id="tags"
+                        name="tags"
+                        value={formData.tags}
+                        onChange={handleChange}
+                        placeholder="casual, summer, formal"
+                        testId="edit-outfit-tags-input"
                     />
                 </div>
 
+                <TextareaField
+                    label="Description"
+                    id="description"
+                    name="description"
+                    value={formData.description}
+                    onChange={handleChange}
+                    placeholder="Describe your outfit..."
+                    testId="edit-outfit-description-textarea"
+                />
+
                 <div className="space-y-3">
-                    <Label className="text-sm font-semibold text-foreground">Outfit Image *</Label>
+                    <label className="text-sm font-semibold text-foreground">Outfit Image *</label>
                     <ImageUpload
                         currentImageUrl={formData.imageUrl}
                         onImageUpload={(url: string) => setFormData(prev => ({ ...prev, imageUrl: url }))}
@@ -216,137 +218,110 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
                         onCheckedChange={handleCheckboxChange}
                         data-testid="edit-outfit-private-checkbox"
                     />
-                    <Label htmlFor="isPrivate" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
+                    <label htmlFor="isPrivate" className="text-sm font-medium leading-none peer-disabled:cursor-not-allowed peer-disabled:opacity-70">
                         Make this outfit private
-                    </Label>
+                    </label>
                 </div>
             </div>
 
-            <div className="space-y-4">
+            {/* Outfit Items */}
+            <div className="space-y-6">
                 <div className="flex items-center justify-between">
-                    <div className="flex items-center gap-2">
-                        <PersonStanding className="h-5 w-5 text-royal" />
-                        <h3 className="text-lg font-semibold text-foreground">Outfit Items</h3>
+                    <div className="flex items-center gap-3">
+                        <div className="w-8 h-8 bg-gradient-royal rounded-lg flex items-center justify-center">
+                            <Plus className="w-4 h-4 text-white" />
+                        </div>
+                        <h3 className="text-2xl font-bold text-foreground">Outfit Items</h3>
                     </div>
-                    <Button
-                        type="button"
-                        onClick={addItem}
-                        variant="outline"
-                        size="sm"
-                        className="flex items-center gap-2"
-                        data-testid="edit-add-item-button"
-                    >
-                        <Plus className="h-4 w-4" />
-                        Add Item
-                    </Button>
+                    <div className="flex gap-3">
+                        {previousItems.length > 0 && (
+                            <Button
+                                type="button"
+                                variant="outline"
+                                size="lg"
+                                onClick={() => setShowQuickAdd(!showQuickAdd)}
+                                className="border-2 border-royal/30 text-royal hover:bg-royal hover:text-royal-foreground transition-all duration-300"
+                                data-testid="edit-quick-add-button"
+                                disabled={isLoadingPreviousItems}
+                            >
+                                <Clock className="h-5 w-5 mr-2" />
+                                {isLoadingPreviousItems ? "Loading..." : "Quick Add"}
+                            </Button>
+                        )}
+                        <Button
+                            type="button"
+                            variant="outline"
+                            size="lg"
+                            onClick={addItem}
+                            className="border-2 border-royal/30 text-royal hover:bg-royal hover:text-royal-foreground transition-all duration-300"
+                            data-testid="edit-add-item-button"
+                        >
+                            <Plus className="h-5 w-5 mr-2" />
+                            Add Item
+                        </Button>
+                    </div>
                 </div>
 
-                {items.map((item, index) => (
-                    <Card key={index} className="border-2 border-border/50">
-                        <CardContent className="p-4">
-                            <div className="flex items-center justify-between mb-4">
-                                <CardDescription className="text-sm font-medium">
-                                    Item {index + 1}
-                                </CardDescription>
+                {/* Quick Add Dropdown */}
+                {showQuickAdd && previousItems.length > 0 && (
+                    <Card className="p-4 border-2 border-royal/20 bg-card/50 shadow-lg" data-testid="edit-quick-add-dropdown">
+                        <CardDescription className="mb-3 text-foreground font-medium">
+                            Click on an item to add it to your outfit:
+                        </CardDescription>
+                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                            {previousItems.map((item, index) => (
                                 <Button
+                                    key={index}
                                     type="button"
-                                    onClick={() => removeItem(index)}
                                     variant="ghost"
-                                    size="sm"
-                                    className="h-8 w-8 p-0 text-muted-foreground hover:text-destructive"
-                                    data-testid={`edit-remove-item-button-${index}`}
+                                    onClick={() => handleAddItemFromPrevious(item)}
+                                    className="justify-start text-left p-3 h-auto border border-border/50 hover:border-royal/50 hover:bg-royal/10 transition-all"
+                                    data-testid={`edit-quick-add-item-${index}`}
                                 >
-                                    <X className="h-4 w-4" />
+                                    <div className="flex flex-col items-start">
+                                        <span className="font-medium text-foreground">{item.name}</span>
+                                        <span className="text-xs text-muted-foreground">
+                                            {item.category}
+                                        </span>
+                                        <span className="text-xs text-royal">
+                                            Used {item.usageCount} time{item.usageCount !== 1 ? 's' : ''}
+                                        </span>
+                                    </div>
                                 </Button>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                <div className="space-y-3">
-                                    <Label className="text-sm font-semibold text-foreground">
-                                        {item.category ? `${itemCategories.find(cat => cat.value === item.category)?.label} Name *` : 'Item Name *'}
-                                    </Label>
-                                    <Input
-                                        value={item.name}
-                                        onChange={(e) => updateItem(index, "name", e.target.value)}
-                                        placeholder={item.category ?
-                                            (item.category === 'UPPERWEAR' ? 'e.g., Nike Air Max, Levi\'s 501 Jeans' :
-                                                item.category === 'LOWERWEAR' ? 'e.g., Levi\'s 501 Jeans, Nike Joggers' :
-                                                    item.category === 'FOOTWEAR' ? 'e.g., Nike Air Max, Converse Chuck Taylor' :
-                                                        item.category === 'HEADWEAR' ? 'e.g., New Era Cap, Beanie' :
-                                                            item.category === 'ACCESSORIES' ? 'e.g., Ray-Ban Aviators, Apple Watch' :
-                                                                'e.g., Brand Name, Model') :
-                                            'e.g., Nike Air Max, Levi\'s 501 Jeans'
-                                        }
-                                        className="h-12 border-2 border-border/50 focus:border-royal transition-colors"
-                                        data-testid={`edit-item-name-input-${index}`}
-                                    />
-                                </div>
-
-                                <div className="space-y-3">
-                                    <Label className="text-sm font-semibold text-foreground">Category *</Label>
-                                    <Select
-                                        value={item.category}
-                                        onValueChange={(value) => updateItem(index, "category", value)}
-                                    >
-                                        <SelectTrigger className="h-12 border-2 border-border/50 focus:border-royal transition-colors" data-testid={`edit-item-category-select-${index}`}>
-                                            <SelectValue placeholder="Select category" />
-                                        </SelectTrigger>
-                                        <SelectContent>
-                                            {itemCategories.map((category) => (
-                                                <SelectItem key={category.value} value={category.value}>
-                                                    {category.label}
-                                                </SelectItem>
-                                            ))}
-                                        </SelectContent>
-                                    </Select>
-                                </div>
-                            </div>
-
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6 mt-4">
-                                <div className="space-y-3">
-                                    <Label className="text-sm font-semibold text-foreground">Description</Label>
-                                    <Input
-                                        value={item.description}
-                                        onChange={(e) => updateItem(index, "description", e.target.value)}
-                                        placeholder="e.g., Blue denim, comfortable fit"
-                                        className="h-12 border-2 border-border/50 focus:border-royal transition-colors"
-                                        data-testid={`edit-item-description-input-${index}`}
-                                    />
-                                </div>
-
-                                <div className="space-y-3">
-                                    <Label className="text-sm font-semibold text-foreground">Purchase URL</Label>
-                                    <Input
-                                        value={item.purchaseUrl}
-                                        onChange={(e) => updateItem(index, "purchaseUrl", e.target.value)}
-                                        placeholder="https://example.com/product"
-                                        className="h-12 border-2 border-border/50 focus:border-royal transition-colors"
-                                        data-testid={`edit-item-purchase-url-input-${index}`}
-                                    />
-                                </div>
-                            </div>
-                        </CardContent>
+                            ))}
+                        </div>
                     </Card>
+                )}
+
+                {items.map((item, index) => (
+                    <OutfitItemCard
+                        key={item.id || index}
+                        item={item}
+                        index={index}
+                        onUpdate={updateItem}
+                        onRemove={removeItem}
+                        testIdPrefix="edit-item"
+                    />
                 ))}
             </div>
 
-            <div className="flex gap-4 pt-4">
-                <Button
-                    type="submit"
-                    disabled={isLoading}
-                    className="flex-1 bg-royal hover:bg-royal/90 text-white"
-                    data-testid="edit-outfit-save-button"
-                >
-                    {isLoading ? "Saving..." : "Save Changes"}
-                </Button>
+            <div className="flex justify-end space-x-4 pt-6 border-t border-border/50">
                 <Button
                     type="button"
-                    onClick={onCancel}
                     variant="outline"
-                    className="flex-1"
+                    onClick={onCancel}
+                    className="px-6 py-2 border-2 border-border/50 hover:border-royal/30 text-foreground hover:text-royal transition-all duration-300"
                     data-testid="edit-outfit-cancel-button"
                 >
                     Cancel
+                </Button>
+                <Button
+                    type="submit"
+                    disabled={isLoading}
+                    className="px-6 py-2 bg-gradient-royal hover:bg-gradient-royal-light text-white shadow-lg hover:shadow-xl transition-all duration-300"
+                    data-testid="save-edit-button"
+                >
+                    {isLoading ? "Saving..." : "Save Changes"}
                 </Button>
             </div>
         </form>

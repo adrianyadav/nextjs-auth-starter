@@ -1,5 +1,6 @@
 import { Page, Locator, expect } from '@playwright/test';
 import { getDefaultOutfitData } from './test-data';
+import { ITEM_CATEGORIES } from "@/lib/constants";
 
 // Page Object for common form interactions
 class FormPage {
@@ -111,7 +112,7 @@ class OutfitFormPage {
         // Select category using data-testid
         const categorySelect = this.page.locator(`[data-testid="item-category-select-${itemIndex}"]`);
         await categorySelect.click();
-        await this.page.locator(`[data-testid="item-category-option-${item.category}-${itemIndex}"]`).click();
+        await this.page.locator(`[data-testid="item-category-option-${itemIndex}-${item.category}"]`).click();
 
         // Fill optional description
         if (item.description) {
@@ -155,6 +156,8 @@ class EditOutfitFormPage {
     readonly addItemButton: Locator;
     readonly saveButton: Locator;
     readonly cancelButton: Locator;
+    readonly quickAddButton: Locator;
+    readonly quickAddDropdown: Locator;
 
     constructor(page: Page) {
         this.page = page;
@@ -164,8 +167,10 @@ class EditOutfitFormPage {
         this.imageUpload = page.locator('[data-testid="edit-outfit-image-upload"]');
         this.privateCheckbox = page.locator('[data-testid="edit-outfit-private-checkbox"]');
         this.addItemButton = page.locator('[data-testid="edit-add-item-button"]');
-        this.saveButton = page.locator('[data-testid="edit-outfit-save-button"]');
+        this.saveButton = page.locator('[data-testid="save-edit-button"]'); // Fix this line
         this.cancelButton = page.locator('[data-testid="edit-outfit-cancel-button"]');
+        this.quickAddButton = page.locator('[data-testid="edit-quick-add-button"]');
+        this.quickAddDropdown = page.locator('[data-testid="edit-quick-add-dropdown"]');
     }
 
     async fillBasicInfo(name: string, description: string, tags: string) {
@@ -212,16 +217,10 @@ class EditOutfitFormPage {
         const categorySelect = this.page.locator(`[data-testid="edit-item-category-select-${itemIndex}"]`);
         await categorySelect.click();
 
-        // Map the category value to its display label
-        const categoryLabels: { [key: string]: string } = {
-            "HEADWEAR": "Headwear",
-            "UPPERWEAR": "Upperwear",
-            "LOWERWEAR": "Lowerwear",
-            "FOOTWEAR": "Footwear",
-            "ACCESSORIES": "Accessories",
-            "SOCKS": "Socks",
-            "OTHER": "Other"
-        };
+        // Map the category value to its display label using our constants
+        const categoryLabels: { [key: string]: string } = Object.fromEntries(
+            ITEM_CATEGORIES.map(cat => [cat.value, cat.label])
+        );
 
         const categoryLabel = categoryLabels[item.category] || item.category;
 
@@ -262,6 +261,14 @@ class EditOutfitFormPage {
         await this.cancelButton.click();
         // Wait for the modal to close
         await this.page.waitForSelector('[data-testid="edit-outfit-form"]', { state: 'hidden' });
+    }
+
+    async clickQuickAdd() {
+        await this.quickAddButton.click();
+    }
+
+    async selectQuickAddItem(index: number) {
+        await this.quickAddDropdown.locator(`[data-testid="edit-quick-add-item-${index}"]`).click();
     }
 }
 

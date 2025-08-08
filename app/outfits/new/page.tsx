@@ -1,23 +1,23 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardDescription } from "@/components/ui/card";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
 import { Checkbox } from "@/components/ui/checkbox";
 import ImageUpload from "@/components/ui/image-upload";
-import { Plus, X, Shirt, PersonStanding } from "lucide-react";
+import { Plus, Shirt, PersonStanding, Clock } from "lucide-react";
 import { useToast } from "@/components/ui/use-toast";
+import { InputField, TextareaField } from "@/components/ui/form-fields";
+import { OutfitItemCard } from "@/components/ui/outfit-item-card";
+import { useOutfitItems } from "@/hooks/use-outfit-items";
 
-interface OutfitItem {
+interface PreviousItem {
     name: string;
     category: string;
     description: string;
     purchaseUrl: string;
+    usageCount: number;
 }
 
 export default function NewOutfitPage() {
@@ -30,39 +30,43 @@ export default function NewOutfitPage() {
         tags: "",
         isPrivate: true,
     });
-    const [items, setItems] = useState<OutfitItem[]>([]);
+    const [previousItems, setPreviousItems] = useState<PreviousItem[]>([]);
+    const [showQuickAdd, setShowQuickAdd] = useState(false);
+    const [isLoadingPreviousItems, setIsLoadingPreviousItems] = useState(false);
     const { toast } = useToast();
 
-    const itemCategories = [
-        { value: "HEADWEAR", label: "Headwear" },
-        { value: "UPPERWEAR", label: "Upperwear" },
-        { value: "LOWERWEAR", label: "Lowerwear" },
-        { value: "FOOTWEAR", label: "Footwear" },
-        { value: "ACCESSORIES", label: "Accessories" },
-        { value: "SOCKS", label: "Socks" },
-        { value: "OTHER", label: "Other" },
-    ];
+    // Use the custom hook for item management
+    const { items, addItem, removeItem, updateItem, addItemFromPrevious } = useOutfitItems();
 
-    const addItem = () => {
-        setItems([
-            ...items,
-            {
-                name: "",
-                category: "",
-                description: "",
-                purchaseUrl: "",
-            },
-        ]);
+    // Fetch previous items on component mount
+    useEffect(() => {
+        fetchPreviousItems();
+    }, []);
+
+    const fetchPreviousItems = async () => {
+        setIsLoadingPreviousItems(true);
+        try {
+            const response = await fetch("/api/my-items");
+            if (response.ok) {
+                const data = await response.json();
+                setPreviousItems(data);
+            } else {
+                console.error("Failed to fetch previous items");
+            }
+        } catch (error) {
+            console.error("Error fetching previous items:", error);
+        } finally {
+            setIsLoadingPreviousItems(false);
+        }
     };
 
-    const removeItem = (index: number) => {
-        setItems(items.filter((_, i) => i !== index));
-    };
-
-    const updateItem = (index: number, field: keyof OutfitItem, value: string) => {
-        const newItems = [...items];
-        newItems[index] = { ...newItems[index], [field]: value };
-        setItems(newItems);
+    const handleAddItemFromPrevious = (previousItem: PreviousItem) => {
+        addItemFromPrevious(previousItem);
+        setShowQuickAdd(false);
+        toast({
+            title: "Item added",
+            description: `${previousItem.name} has been added to your outfit.`,
+        });
     };
 
     const handleSubmit = async (e: React.FormEvent) => {
@@ -166,52 +170,41 @@ export default function NewOutfitPage() {
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                    <div className="space-y-3">
-                                        <Label htmlFor="name" className="text-sm font-semibold text-foreground">Outfit Name *</Label>
-                                        <Input
-                                            type="text"
-                                            id="name"
-                                            name="name"
-                                            required
-                                            value={formData.name}
-                                            onChange={handleChange}
-                                            placeholder="Enter outfit name"
-                                            className="h-12 text-lg border-2 border-border/50 focus:border-royal transition-colors"
-                                            data-testid="outfit-name-input"
-                                        />
-                                    </div>
-
-                                    <div className="space-y-3">
-                                        <Label htmlFor="tags" className="text-sm font-semibold text-foreground">Tags (comma-separated)</Label>
-                                        <Input
-                                            type="text"
-                                            id="tags"
-                                            name="tags"
-                                            value={formData.tags}
-                                            onChange={handleChange}
-                                            placeholder="casual, summer, formal"
-                                            className="h-12 text-lg border-2 border-border/50 focus:border-royal transition-colors"
-                                            data-testid="outfit-tags-input"
-                                        />
-                                    </div>
-                                </div>
-
-                                <div className="space-y-3">
-                                    <Label htmlFor="description" className="text-sm font-semibold text-foreground">Description</Label>
-                                    <Textarea
-                                        id="description"
-                                        name="description"
-                                        value={formData.description}
+                                    <InputField
+                                        label="Outfit Name"
+                                        required
+                                        id="name"
+                                        name="name"
+                                        value={formData.name}
                                         onChange={handleChange}
-                                        rows={4}
-                                        placeholder="Describe your outfit, when you'd wear it, or any special details..."
-                                        className="text-lg border-2 border-border/50 focus:border-royal transition-colors resize-none"
-                                        data-testid="outfit-description-textarea"
+                                        placeholder="Enter outfit name"
+                                        testId="outfit-name-input"
+                                    />
+
+                                    <InputField
+                                        label="Tags (comma-separated)"
+                                        id="tags"
+                                        name="tags"
+                                        value={formData.tags}
+                                        onChange={handleChange}
+                                        placeholder="casual, summer, formal"
+                                        testId="outfit-tags-input"
                                     />
                                 </div>
 
+                                <TextareaField
+                                    label="Description"
+                                    id="description"
+                                    name="description"
+                                    value={formData.description}
+                                    onChange={handleChange}
+                                    rows={4}
+                                    placeholder="Describe your outfit, when you'd wear it, or any special details..."
+                                    testId="outfit-description-textarea"
+                                />
+
                                 <div className="space-y-3">
-                                    <Label className="text-sm font-semibold text-foreground">Outfit Image *</Label>
+                                    <label className="text-sm font-semibold text-foreground">Outfit Image *</label>
                                     <div className="border-2 border-dashed border-border/50 rounded-lg p-6 bg-muted/20">
                                         <ImageUpload
                                             onImageUpload={(imageUrl) => {
@@ -236,7 +229,7 @@ export default function NewOutfitPage() {
                                         data-testid="outfit-private-checkbox"
                                     />
                                     <div>
-                                        <Label htmlFor="isPrivate" className="text-sm font-semibold text-foreground">Make this outfit private</Label>
+                                        <label htmlFor="isPrivate" className="text-sm font-semibold text-foreground">Make this outfit private</label>
                                         <CardDescription className="text-xs text-muted-foreground/80">
                                             Private outfits are only visible to you and cannot be shared
                                         </CardDescription>
@@ -253,18 +246,65 @@ export default function NewOutfitPage() {
                                         </div>
                                         <h3 className="text-2xl font-bold text-foreground">Outfit Items</h3>
                                     </div>
-                                    <Button
-                                        type="button"
-                                        variant="outline"
-                                        size="lg"
-                                        onClick={addItem}
-                                        className="border-2 border-royal/30 text-royal hover:bg-royal hover:text-royal-foreground transition-all duration-300 transform hover:scale-105"
-                                        data-testid="add-item-button"
-                                    >
-                                        <Plus className="h-5 w-5 mr-2" />
-                                        Add Item
-                                    </Button>
+                                    <div className="flex gap-3">
+                                        {previousItems.length > 0 && (
+                                            <Button
+                                                type="button"
+                                                variant="outline"
+                                                size="lg"
+                                                onClick={() => setShowQuickAdd(!showQuickAdd)}
+                                                className="border-2 border-royal/30 text-royal hover:bg-royal hover:text-royal-foreground transition-all duration-300"
+                                                data-testid="quick-add-button"
+                                                disabled={isLoadingPreviousItems}
+                                            >
+                                                <Clock className="h-5 w-5 mr-2" />
+                                                {isLoadingPreviousItems ? "Loading..." : "Quick Add"}
+                                            </Button>
+                                        )}
+                                        <Button
+                                            type="button"
+                                            variant="outline"
+                                            size="lg"
+                                            onClick={addItem}
+                                            className="border-2 border-royal/30 text-royal hover:bg-royal hover:text-royal-foreground transition-all duration-300 transform hover:scale-105"
+                                            data-testid="add-item-button"
+                                        >
+                                            <Plus className="h-5 w-5 mr-2" />
+                                            Add Item
+                                        </Button>
+                                    </div>
                                 </div>
+
+                                {/* Quick Add Dropdown */}
+                                {showQuickAdd && previousItems.length > 0 && (
+                                    <Card className="p-4 border-2 border-royal/20 bg-card/50 shadow-lg" data-testid="quick-add-dropdown">
+                                        <CardDescription className="mb-3 text-foreground font-medium">
+                                            Click on an item to add it to your outfit:
+                                        </CardDescription>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+                                            {previousItems.map((item, index) => (
+                                                <Button
+                                                    key={index}
+                                                    type="button"
+                                                    variant="ghost"
+                                                    onClick={() => handleAddItemFromPrevious(item)}
+                                                    className="justify-start text-left p-3 h-auto border border-border/50 hover:border-royal/50 hover:bg-royal/10 transition-all"
+                                                    data-testid={`quick-add-item-${index}`}
+                                                >
+                                                    <div className="flex flex-col items-start">
+                                                        <span className="font-medium text-foreground">{item.name}</span>
+                                                        <span className="text-xs text-muted-foreground">
+                                                            {item.category}
+                                                        </span>
+                                                        <span className="text-xs text-royal">
+                                                            Used {item.usageCount} time{item.usageCount !== 1 ? 's' : ''}
+                                                        </span>
+                                                    </div>
+                                                </Button>
+                                            ))}
+                                        </div>
+                                    </Card>
+                                )}
 
                                 {items.length === 0 && (
                                     <div className="text-center py-12 bg-muted/20 rounded-lg border-2 border-dashed border-border/50">
@@ -278,92 +318,14 @@ export default function NewOutfitPage() {
                                 )}
 
                                 {items.map((item, index) => (
-                                    <Card key={index} className="p-6 border-2 border-border/50 bg-card/50 shadow-lg">
-                                        <div className="flex items-center justify-between mb-6">
-                                            <div className="flex items-center gap-3">
-                                                <div className="w-6 h-6 bg-royal/20 rounded-full flex items-center justify-center">
-                                                    <span className="text-sm font-bold text-royal">{index + 1}</span>
-                                                </div>
-                                                <h4 className="font-semibold text-lg text-foreground">
-                                                    {item.category ? `${itemCategories.find(cat => cat.value === item.category)?.label || 'Clothing Item'}` : 'Clothing Item'}
-                                                </h4>
-                                            </div>
-                                            <Button
-                                                type="button"
-                                                variant="ghost"
-                                                size="sm"
-                                                onClick={() => removeItem(index)}
-                                                className="text-muted-foreground hover:text-red-500 hover:bg-red-50 transition-colors"
-                                            >
-                                                <X className="h-5 w-5" />
-                                            </Button>
-                                        </div>
-
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                                            <div className="space-y-3">
-                                                <Label className="text-sm font-semibold text-foreground">
-                                                    {item.category ? `${itemCategories.find(cat => cat.value === item.category)?.label} Name *` : 'Item Name *'}
-                                                </Label>
-                                                <Input
-                                                    value={item.name}
-                                                    onChange={(e) => updateItem(index, "name", e.target.value)}
-                                                    placeholder={item.category ?
-                                                        (item.category === 'UPPERWEAR' ? 'e.g., Nike Air Max, Levi\'s 501 Jeans' :
-                                                            item.category === 'LOWERWEAR' ? 'e.g., Levi\'s 501 Jeans, Nike Joggers' :
-                                                                item.category === 'FOOTWEAR' ? 'e.g., Nike Air Max, Converse Chuck Taylor' :
-                                                                    item.category === 'HEADWEAR' ? 'e.g., New Era Cap, Beanie' :
-                                                                        item.category === 'ACCESSORIES' ? 'e.g., Ray-Ban Aviators, Apple Watch' :
-                                                                            'e.g., Brand Name, Model') :
-                                                        'e.g., Nike Air Max, Levi\'s 501 Jeans'
-                                                    }
-                                                    className="h-12 border-2 border-border/50 focus:border-royal transition-colors"
-                                                    data-testid={`item-name-input-${index}`}
-                                                />
-                                            </div>
-
-                                            <div className="space-y-3">
-                                                <Label className="text-sm font-semibold text-foreground">Category *</Label>
-                                                <Select
-                                                    value={item.category}
-                                                    onValueChange={(value) => updateItem(index, "category", value)}
-                                                >
-                                                    <SelectTrigger className="h-12 border-2 border-border/50 focus:border-royal transition-colors" data-testid={`item-category-select-${index}`}>
-                                                        <SelectValue placeholder="Select category" />
-                                                    </SelectTrigger>
-                                                    <SelectContent>
-                                                        {itemCategories.map((category) => (
-                                                            <SelectItem key={category.value} value={category.value} data-testid={`item-category-option-${category.value}-${index}`}>
-                                                                {category.label}
-                                                            </SelectItem>
-                                                        ))}
-                                                    </SelectContent>
-                                                </Select>
-                                            </div>
-
-                                            <div className="space-y-3">
-                                                <Label className="text-sm font-semibold text-foreground">Description</Label>
-                                                <Input
-                                                    value={item.description}
-                                                    onChange={(e) => updateItem(index, "description", e.target.value)}
-                                                    placeholder="Optional details about this item"
-                                                    className="h-12 border-2 border-border/50 focus:border-royal transition-colors"
-                                                    data-testid={`item-description-input-${index}`}
-                                                />
-                                            </div>
-
-                                            <div className="space-y-3">
-                                                <Label className="text-sm font-semibold text-foreground">Purchase Link</Label>
-                                                <Input
-                                                    type="url"
-                                                    value={item.purchaseUrl}
-                                                    onChange={(e) => updateItem(index, "purchaseUrl", e.target.value)}
-                                                    placeholder="https://store.com/item"
-                                                    className="h-12 border-2 border-border/50 focus:border-royal transition-colors"
-                                                    data-testid={`item-purchase-url-input-${index}`}
-                                                />
-                                            </div>
-                                        </div>
-                                    </Card>
+                                    <OutfitItemCard
+                                        key={index}
+                                        item={item}
+                                        index={index}
+                                        onUpdate={updateItem}
+                                        onRemove={removeItem}
+                                        testIdPrefix="item"
+                                    />
                                 ))}
                             </div>
 
