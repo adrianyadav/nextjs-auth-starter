@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/auth";
 import { put } from '@vercel/blob';
+import { writeFile, mkdir } from 'fs/promises';
+import { join } from 'path';
 
 export async function POST(request: NextRequest) {
     try {
@@ -42,26 +44,51 @@ export async function POST(request: NextRequest) {
             );
         }
 
-        // Check if BLOB_READ_WRITE_TOKEN is available
-        if (!process.env.BLOB_READ_WRITE_TOKEN) {
-            return NextResponse.json(
-                { error: "Upload service not configured" },
-                { status: 503 }
-            );
-        }
-
         // Generate unique filename
         const timestamp = Date.now();
         const randomString = Math.random().toString(36).substring(2, 15);
         const fileExtension = file.name.split('.').pop();
-        const fileName = `outfitsave/${timestamp}-${randomString}.${fileExtension}`;
+        const fileName = `${timestamp}-${randomString}.${fileExtension}`;
 
-        // Upload to Vercel Blob
-        const blob = await put(fileName, file, {
-            access: 'public',
-        });
+        // Check if we're in production (Vercel) or development
+        const isProduction = process.env.NODE_ENV === 'production' && process.env.VERCEL === '1';
 
-        return NextResponse.json({ imageUrl: blob.url });
+        if (isProduction) {
+            // Use Vercel Blob in production
+            if (!process.env.BLOB_READ_WRITE_TOKEN) {
+                return NextResponse.json(
+                    { error: "Upload service not configured" },
+                    { status: 503 }
+                );
+            }
+
+            const blobFileName = `outfitsave/${fileName}`;
+            const blob = await put(blobFileName, file, {
+                access: 'public',
+            });
+
+            return NextResponse.json({ imageUrl: blob.url });
+        } else {
+            // Use local storage in development
+            const uploadsDir = join(process.cwd(), 'public', 'uploads');
+
+            // Ensure uploads directory exists
+            try {
+                await mkdir(uploadsDir, { recursive: true });
+            } catch (error) {
+                console.error("Error creating uploads directory:", error);
+            }
+
+            const filePath = join(uploadsDir, fileName);
+            const bytes = await file.arrayBuffer();
+            const buffer = Buffer.from(bytes);
+
+            await writeFile(filePath, buffer);
+
+            // Return the local URL
+            const imageUrl = `/uploads/${fileName}`;
+            return NextResponse.json({ imageUrl });
+        }
     } catch (error) {
         console.error("Error uploading file:", error);
         return NextResponse.json(
