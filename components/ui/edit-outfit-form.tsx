@@ -169,9 +169,9 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
     };
 
     return (
-        <form onSubmit={handleSubmit} className="space-y-6" data-testid="edit-outfit-form">
-            <div className="space-y-4">
-                <div className="flex items-center gap-3 mb-6">
+        <form onSubmit={handleSubmit} className="space-y-4 sm:space-y-6" data-testid="edit-outfit-form">
+            <div className="space-y-3 sm:space-y-4">
+                <div className="flex items-center gap-3 mb-4 sm:mb-6">
                     <div className="w-8 h-8 bg-gradient-royal rounded-lg flex items-center justify-center">
                         <PersonStanding className="w-4 h-4 text-white" />
                     </div>
@@ -234,8 +234,8 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
             </div>
 
             {/* Outfit Items */}
-            <div className="space-y-6">
-                <div className="flex items-center justify-between">
+            <div className="space-y-4 sm:space-y-6">
+                <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
                     <div className="flex items-center gap-3">
                         <div className="w-8 h-8 bg-gradient-royal rounded-lg flex items-center justify-center">
                             <Plus className="w-4 h-4 text-white" />
@@ -247,25 +247,25 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
                             <Button
                                 type="button"
                                 variant="outline"
-                                size="lg"
+                                size="sm"
                                 onClick={() => setShowQuickAdd(!showQuickAdd)}
-                                className="border-2 border-royal/30 text-royal hover:bg-royal hover:text-royal-foreground transition-all duration-300"
+                                className="border-2 border-royal/30 text-royal hover:bg-royal hover:text-royal-foreground transition-all duration-300 text-sm"
                                 data-testid="edit-quick-add-button"
                                 disabled={isLoadingPreviousItems}
                             >
-                                <Clock className="h-5 w-5 mr-2" />
+                                <Clock className="h-4 w-4 mr-2" />
                                 {isLoadingPreviousItems ? "Loading..." : "Quick Add"}
                             </Button>
                         )}
                         <Button
                             type="button"
                             variant="outline"
-                            size="lg"
+                            size="sm"
                             onClick={addItem}
-                            className="border-2 border-royal/30 text-royal hover:bg-royal hover:text-royal-foreground transition-all duration-300"
+                            className="border-2 border-royal/30 text-royal hover:bg-royal hover:text-royal-foreground transition-all duration-300 text-sm"
                             data-testid="edit-add-item-button"
                         >
-                            <Plus className="h-5 w-5 mr-2" />
+                            <Plus className="h-4 w-4 mr-2" />
                             Add Item
                         </Button>
                     </div>
@@ -312,29 +312,29 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
                                 className="border border-border/50 rounded-lg"
                             >
                                 <AccordionTrigger
-                                    className="px-4 py-3 hover:no-underline"
+                                    className="px-3 sm:px-4 py-2 sm:py-3 hover:no-underline"
                                     data-testid={`edit-item-accordion-trigger-${index}`}
                                 >
-                                    <div className="flex items-center justify-between w-full pr-4">
-                                        <div className="flex items-center gap-3">
-                                            <div className="w-6 h-6 bg-gradient-royal rounded-md flex items-center justify-center">
+                                    <div className="flex items-center gap-3 w-full pr-4">
+                                        <div className="flex items-center gap-3 flex-1 min-w-0">
+                                            <div className="w-6 h-6 bg-gradient-royal rounded-md flex items-center justify-center flex-shrink-0">
                                                 <span className="text-xs text-white font-medium">
                                                     {index + 1}
                                                 </span>
                                             </div>
-                                            <div className="text-left">
-                                                <h4 className="font-medium text-foreground">
+                                            <div className="text-left min-w-0 flex-1">
+                                                <h4 className="font-medium text-foreground truncate">
                                                     {item.name || "Untitled Item"}
                                                 </h4>
-                                                <p className="text-sm text-muted-foreground capitalize">
+                                                <p className="text-sm text-muted-foreground capitalize truncate">
                                                     {item.category || "No category"}
                                                 </p>
                                             </div>
                                         </div>
-                                        <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200" />
+                                        <ChevronDown className="h-4 w-4 text-muted-foreground transition-transform duration-200 flex-shrink-0" />
                                     </div>
                                 </AccordionTrigger>
-                                <AccordionContent className="px-4 pb-4">
+                                <AccordionContent className="px-3 sm:px-4 pb-3 sm:pb-4">
                                     <OutfitItemCard
                                         item={item}
                                         index={index}
