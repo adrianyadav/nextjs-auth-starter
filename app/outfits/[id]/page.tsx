@@ -290,7 +290,7 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                         {outfit.description && (
                             <div>
                                 <h2 className="text-2xl font-semibold mb-3 font-raleway">Description</h2>
-                                <p className="text-muted-foreground">{outfit.description}</p>
+                                <p className="text-muted-foreground" data-testid="outfit-description">{outfit.description}</p>
                             </div>
                         )}
 
@@ -299,7 +299,7 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                                 <h2 className="text-2xl font-semibold mb-3 font-raleway">Tags</h2>
                                 <div className="flex flex-wrap gap-2">
                                     {outfit.tags.map((tag, index) => (
-                                        <Badge key={index} variant="secondary">
+                                        <Badge key={index} variant="secondary" data-testid={`outfit-tag-${index}`}>
                                             {tag}
                                         </Badge>
                                     ))}

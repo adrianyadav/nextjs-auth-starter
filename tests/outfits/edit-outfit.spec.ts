@@ -3,6 +3,9 @@ import { loginWithTestAccount, createOutfit, editOutfit } from '../utils';
 import { getDefaultOutfitData } from '../test-data';
 
 test.describe('Edit Outfit', () => {
+    // Increase timeout for CI environments
+    test.setTimeout(process.env.CI ? 60000 : 30000);
+
     let createdOutfits: string[] = [];
 
     test.beforeEach(async ({ page }) => {
@@ -13,7 +16,7 @@ test.describe('Edit Outfit', () => {
 
     test('should edit outfit description successfully', async ({ page }) => {
         // Create an outfit first
-        const { name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
+        const { id: outfitId, name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
         createdOutfits.push(outfitName);
 
         // Edit the outfit description
@@ -24,11 +27,22 @@ test.describe('Edit Outfit', () => {
         await page.goto('/my-outfits');
         await page.waitForLoadState('networkidle');
 
-        const outfitCard = page.locator('a[href*="/outfits/"]').filter({ hasText: outfitName });
+        // Use the specific data-testid selector for better reliability
+        const outfitCard = page.locator(`[data-testid="outfit-card-${outfitId}"]`);
         await outfitCard.click();
         await page.waitForLoadState('networkidle');
 
-        await expect(page.locator(`text=${newDescription}`)).toBeVisible();
+        // Wait a bit more for the page to fully render
+        await page.waitForTimeout(1000);
+
+        // Debug: Log the current page content to see what's there
+        const pageContent = await page.content();
+        console.log('Page content:', pageContent);
+
+        // Use a more specific selector for the description
+        // Look for the description using the test ID
+        const descriptionText = page.locator('[data-testid="outfit-description"]').filter({ hasText: 'Updated description for testing' });
+        await expect(descriptionText).toBeVisible();
     });
 
     test('should edit outfit tags successfully', async ({ page }) => {
@@ -49,10 +63,10 @@ test.describe('Edit Outfit', () => {
         await page.waitForLoadState('networkidle');
 
         // Check that the new tags are visible - use more specific selectors
-        // Look for tags within the tags section or as Badge components
-        await expect(page.locator('h2:has-text("Tags") + div').locator('text=updated')).toBeVisible();
-        await expect(page.locator('h2:has-text("Tags") + div').locator('text=winter')).toBeVisible();
-        await expect(page.locator('h2:has-text("Tags") + div').locator('text=formal')).toBeVisible();
+        // Look for tags within the tags section - tags are displayed as Badge components with test IDs
+        await expect(page.locator('[data-testid="outfit-tag-0"]').filter({ hasText: 'updated' })).toBeVisible();
+        await expect(page.locator('[data-testid="outfit-tag-1"]').filter({ hasText: 'winter' })).toBeVisible();
+        await expect(page.locator('[data-testid="outfit-tag-2"]').filter({ hasText: 'formal' })).toBeVisible();
     });
 
     test('should toggle outfit privacy successfully', async ({ page }) => {

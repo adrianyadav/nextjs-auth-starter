@@ -82,6 +82,7 @@ export default function OutfitCard({
             href={showDeleteDialog ? "#" : `/outfits/${outfit.id}`}
             className="block"
             data-testid={`outfit-card-${outfit.id}`}
+            data-outfit-name={outfit.name}
             onClick={(e) => {
                 // Prevent navigation when any action button is clicked
                 if (showDeleteDialog || e.target instanceof HTMLButtonElement) {
@@ -214,6 +215,7 @@ export default function OutfitCard({
                                     key={index}
                                     variant="secondary"
                                     className="bg-white/90 text-royal border border-royal/30 hover:bg-royal/20 hover:border-royal/50 transition-all duration-300 transform hover:scale-105 font-medium shadow-sm"
+                                    data-testid={`outfit-card-tag-${index}`}
                                 >
                                     {tag}
                                 </Badge>

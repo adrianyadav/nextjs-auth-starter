@@ -76,7 +76,7 @@ export default async function SharedOutfitPage({ params }: SharedOutfitPageProps
                         {outfit.description && (
                             <div>
                                 <h2 className="text-2xl font-semibold mb-3">Description</h2>
-                                <p className="text-muted-foreground">{outfit.description}</p>
+                                <p className="text-muted-foreground" data-testid="shared-outfit-description">{outfit.description}</p>
                             </div>
                         )}
 
@@ -84,8 +84,8 @@ export default async function SharedOutfitPage({ params }: SharedOutfitPageProps
                             <div>
                                 <h2 className="text-2xl font-semibold mb-3">Tags</h2>
                                 <div className="flex flex-wrap gap-2">
-                                    {outfit.tags.map((tag) => (
-                                        <Badge key={tag} variant="secondary">
+                                    {outfit.tags.map((tag, index) => (
+                                        <Badge key={tag} variant="secondary" data-testid={`shared-outfit-tag-${index}`}>
                                             {tag}
                                         </Badge>
                                     ))}

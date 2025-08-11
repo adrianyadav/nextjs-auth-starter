@@ -399,7 +399,23 @@ export async function createOutfit(page: Page, options: CreateOutfitOptions = {}
     // Submit the form
     await outfitForm.submit();
 
-    return { name, isPrivate };
+    // Wait for redirect to my-outfits page
+    await page.waitForURL('/my-outfits', { timeout: 10000 });
+    await page.waitForLoadState('networkidle');
+
+    // Find the created outfit card and extract the ID from the href
+    const outfitCard = page.locator('a[href*="/outfits/"]').filter({ hasText: name });
+    await expect(outfitCard).toBeVisible();
+
+    // Extract outfit ID from the href attribute
+    const href = await outfitCard.getAttribute('href');
+    const outfitId = href ? href.split('/').pop() : null;
+
+    if (!outfitId || isNaN(parseInt(outfitId))) {
+        throw new Error(`Failed to extract outfit ID from href: ${href}`);
+    }
+
+    return { id: parseInt(outfitId), name, isPrivate };
 }
 
 interface EditOutfitOptions {
