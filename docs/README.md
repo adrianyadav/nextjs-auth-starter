@@ -1,3 +1,6 @@
+[![Playwright Tests](https://github.com/adrianyadav/outfitsave/actions/workflows/playwright.yml/badge.svg)](https://github.com/adrianyadav/outfitsave/actions/workflows/playwright.yml)
+![Vercel Deploy](https://deploy-badge.vercel.app/vercel/outfitsavel)
+
 # OutfitSave - Fashion Outfit Management App
 
 OutfitSave is a modern web application built with Next.js that helps users organize, save, and browse fashion outfits. Built with a responsive design and intuitive user interface, it provides a seamless experience for fashion enthusiasts to manage their wardrobe digitally.
