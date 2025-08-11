@@ -81,11 +81,12 @@ fi
 
 print_status "Verifying database connection..."
 
-# Test database connection
-if npx prisma db execute --stdin <<< "SELECT 1;" > /dev/null 2>&1; then
+# Test database connection using the loaded DATABASE_URL
+if npx prisma db execute --url "$DATABASE_URL" --stdin <<< "SELECT 1;" > /dev/null 2>&1; then
     print_success "Database connection verified!"
 else
     print_error "Failed to verify database connection"
+    print_error "Please check your DATABASE_URL in .env.uat"
     exit 1
 fi
 
