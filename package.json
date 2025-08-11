@@ -9,7 +9,7 @@
     "start": "next start",
     "lint": "next lint",
     "postinstall": "npx prisma generate --no-engine",
-    "test": "playwright test",
+    "test": "playwright test --headed",
     "test:ui": "playwright test --ui",
     "test:debug": "playwright test --debug",
     "test:prod": "playwright test --config=playwright.config.prod.ts --headed",

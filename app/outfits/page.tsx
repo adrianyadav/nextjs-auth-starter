@@ -83,7 +83,7 @@ function OutfitsList() {
                             <div className="w-16 h-16 bg-muted/50 rounded-full flex items-center justify-center mx-auto mb-4">
                                 <TShirtIcon className="w-8 h-8 text-muted-foreground" />
                             </div>
-                            <h3 className="text-xl font-semibold text-foreground">No outfits available</h3>
+                            <h3 className="text-xl font-semibold text-foreground font-raleway">No outfits available</h3>
                             <p className="text-muted-foreground max-w-md mx-auto">
                                 Be the first to share your style! Create and share your outfits with the community.
                             </p>
@@ -157,7 +157,7 @@ export default function OutfitsPage() {
             <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* Header Section */}
                 <div className="mb-12">
-                    <h1 className="text-5xl md:text-6xl font-black text-foreground mb-6 leading-tight">
+                    <h1 className="text-5xl md:text-6xl font-black text-foreground mb-6 leading-tight font-raleway">
                         Browse <span className="text-gradient-royal">Outfits</span>
                     </h1>
                     <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">

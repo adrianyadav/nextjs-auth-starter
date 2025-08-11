@@ -150,7 +150,7 @@ export default function NewOutfitPage() {
             <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
                 {/* Header Section */}
                 <div className="mb-12">
-                    <h1 className="text-5xl md:text-6xl font-black text-foreground mb-6 leading-tight">
+                    <h1 className="text-5xl md:text-6xl font-black text-foreground mb-6 leading-tight font-raleway">
                         Save New <span className="text-gradient-royal">Outfit</span>
                     </h1>
                     <p className="text-xl text-muted-foreground max-w-2xl leading-relaxed">
@@ -167,7 +167,7 @@ export default function NewOutfitPage() {
                                     <div className="w-8 h-8 bg-gradient-royal rounded-lg flex items-center justify-center">
                                         <PersonStanding className="w-4 h-4 text-white" />
                                     </div>
-                                    <h3 className="text-2xl font-bold text-foreground">Basic Information</h3>
+                                    <h3 className="text-2xl font-bold text-foreground font-raleway">Basic Information</h3>
                                 </div>
 
                                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -245,7 +245,7 @@ export default function NewOutfitPage() {
                                         <div className="w-8 h-8 bg-gradient-royal rounded-lg flex items-center justify-center">
                                             <Shirt className="w-4 h-4 text-white" />
                                         </div>
-                                        <h3 className="text-2xl font-bold text-foreground">Outfit Items</h3>
+                                        <h3 className="text-2xl font-bold text-foreground font-raleway">Outfit Items</h3>
                                     </div>
                                     <div className="flex gap-3">
                                         {previousItems.length > 0 && (

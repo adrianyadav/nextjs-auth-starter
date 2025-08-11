@@ -12,7 +12,7 @@ export function SectionHeader({ icon: Icon, title, className = "" }: SectionHead
             <div className="w-8 h-8 bg-gradient-royal rounded-lg flex items-center justify-center">
                 <Icon className="w-4 h-4 text-white" />
             </div>
-            <h3 className="text-2xl font-bold text-foreground">{title}</h3>
+            <h3 className="text-2xl font-bold text-foreground font-raleway">{title}</h3>
         </div>
     );
 }

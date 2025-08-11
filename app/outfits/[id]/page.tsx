@@ -252,7 +252,7 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                         </div>
                     </div>
 
-                    <h1 className="text-4xl font-bold mb-2">{outfit.name}</h1>
+                    <h1 className="text-4xl font-bold mb-2 font-raleway">{outfit.name}</h1>
                     {outfit.user?.name && (
                         <p className="text-muted-foreground">
                             Created by {outfit.user.name}
@@ -267,7 +267,7 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                     {/* Outfit Image */}
                     {outfit.imageUrl && (
                         <div className="space-y-4">
-                            <h2 className="text-2xl font-semibold">Outfit</h2>
+                            <h2 className="text-2xl font-semibold font-raleway">Outfit</h2>
                             <div className="relative rounded-lg overflow-hidden">
                                 <Image
                                     src={outfit.imageUrl}
@@ -289,14 +289,14 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
                     <div className="space-y-6">
                         {outfit.description && (
                             <div>
-                                <h2 className="text-2xl font-semibold mb-3">Description</h2>
+                                <h2 className="text-2xl font-semibold mb-3 font-raleway">Description</h2>
                                 <p className="text-muted-foreground">{outfit.description}</p>
                             </div>
                         )}
 
                         {outfit.tags && outfit.tags.length > 0 && (
                             <div>
-                                <h2 className="text-2xl font-semibold mb-3">Tags</h2>
+                                <h2 className="text-2xl font-semibold mb-3 font-raleway">Tags</h2>
                                 <div className="flex flex-wrap gap-2">
                                     {outfit.tags.map((tag, index) => (
                                         <Badge key={index} variant="secondary">
@@ -309,7 +309,7 @@ export default function OutfitPage({ params }: { params: Promise<{ id: string }>
 
                         {outfit.items && outfit.items.length > 0 && (
                             <div>
-                                <h2 className="text-2xl font-semibold mb-3">Items</h2>
+                                <h2 className="text-2xl font-semibold mb-3 font-raleway">Items</h2>
                                 <div className="space-y-4">
                                     {sortItemsByCategory(outfit.items).map((item) => {
                                         const categoryColors = getCategoryColors(item.category);

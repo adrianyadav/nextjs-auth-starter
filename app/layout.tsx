@@ -3,6 +3,19 @@ import "./globals.css";
 import Header from "./Header";
 import Footer from "@/components/ui/footer";
 import Providers from "./providers";
+import { Raleway, Inter } from "next/font/google";
+
+const raleway = Raleway({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700', '800', '900'],
+  variable: '--font-raleway',
+});
+
+const inter = Inter({
+  subsets: ['latin'],
+  weight: ['400', '500', '600', '700'],
+  variable: '--font-inter',
+});
 
 export const metadata = {
   title: "OutfitSave",
@@ -21,7 +34,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en">
+    <html lang="en" className={`${raleway.variable} ${inter.variable}`}>
       <body>
         <Providers>
           <div className="min-h-screen flex flex-col">

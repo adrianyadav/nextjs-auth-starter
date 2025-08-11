@@ -90,7 +90,7 @@ export default async function Home() {
         <div className="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-24 pb-20">
           <div className="text-center">
             {/* Main Heading */}
-            <h1 className="text-6xl md:text-8xl font-black text-foreground mb-12 leading-tight animate-fade-in-up">
+            <h1 className="text-6xl md:text-8xl font-black text-foreground mb-12 leading-tight animate-fade-in-up font-raleway">
               Save Your
               <span className="block text-gradient-royal animate-gradient">
                 {" "}Style

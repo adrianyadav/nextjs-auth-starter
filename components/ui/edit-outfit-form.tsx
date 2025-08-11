@@ -175,7 +175,7 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
                     <div className="w-8 h-8 bg-gradient-royal rounded-lg flex items-center justify-center">
                         <PersonStanding className="w-4 h-4 text-white" />
                     </div>
-                    <h3 className="text-2xl font-bold text-foreground">Basic Information</h3>
+                    <h3 className="text-2xl font-bold text-foreground font-raleway">Basic Information</h3>
                 </div>
 
                 <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
@@ -240,7 +240,7 @@ export default function EditOutfitForm({ outfit, onSave, onCancel, isLoading = f
                         <div className="w-8 h-8 bg-gradient-royal rounded-lg flex items-center justify-center">
                             <Plus className="w-4 h-4 text-white" />
                         </div>
-                        <h3 className="text-2xl font-bold text-foreground">Outfit Items</h3>
+                        <h3 className="text-2xl font-bold text-foreground font-raleway">Outfit Items</h3>
                     </div>
                     <div className="flex gap-3">
                         {previousItems.length > 0 && (
