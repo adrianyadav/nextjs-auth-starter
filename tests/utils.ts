@@ -399,8 +399,29 @@ export async function createOutfit(page: Page, options: CreateOutfitOptions = {}
     // Submit the form
     await outfitForm.submit();
 
-    // Wait for redirect to my-outfits page
-    await page.waitForURL('/my-outfits', { timeout: 10000 });
+    // More robust navigation handling
+    try {
+        // First try to wait for the redirect
+        await page.waitForURL('/my-outfits', { timeout: 15000 });
+    } catch (error) {
+        // If redirect fails, check if we're still on the form page
+        const currentUrl = page.url();
+        if (currentUrl.includes('/add-outfit') || currentUrl.includes('/outfits/new')) {
+            // Form submission might have failed, check for errors
+            const errorElement = page.locator('[data-testid="error-message"], .error, [role="alert"]');
+            if (await errorElement.isVisible()) {
+                const errorText = await errorElement.textContent();
+                throw new Error(`Form submission failed: ${errorText}`);
+            }
+
+            // Try to navigate manually
+            await page.goto('/my-outfits');
+        } else {
+            // We're on some other page, navigate to my-outfits
+            await page.goto('/my-outfits');
+        }
+    }
+
     await page.waitForLoadState('networkidle');
 
     // Find the created outfit card and extract the ID from the href

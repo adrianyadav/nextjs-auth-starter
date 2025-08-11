@@ -179,12 +179,18 @@ test.describe('Edit Outfit', () => {
         const { name: outfitName } = await createOutfit(page, getDefaultOutfitData(false));
         createdOutfits.push(outfitName);
 
-        // Navigate to the outfit detail page
+        // Navigate to the outfit detail page with better error handling
         await page.goto('/my-outfits');
         await page.waitForLoadState('networkidle');
 
+        // Wait for outfits to load before proceeding
+        await page.waitForSelector('a[href*="/outfits/"]', { timeout: 10000 });
+
         const outfitCard = page.locator('a[href*="/outfits/"]').filter({ hasText: outfitName });
+        await expect(outfitCard).toBeVisible();
         await outfitCard.click();
+
+        // Wait for navigation to complete
         await page.waitForLoadState('networkidle');
 
         // Click edit button
