@@ -1,5 +1,7 @@
 [![Playwright Tests](https://github.com/adrianyadav/outfitsave/actions/workflows/playwright.yml/badge.svg)](https://github.com/adrianyadav/outfitsave/actions/workflows/playwright.yml)
-![Vercel Deploy](https://deploy-badge.vercel.app/vercel/outfitsavel)
+
+[![Deployed](https://deploy-badge.vercel.app/vercel/outfitsavel)](https://www.outfitsave.com)
+
 
 # OutfitSave - Fashion Outfit Management App
 
