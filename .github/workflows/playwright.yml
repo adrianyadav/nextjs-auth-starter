@@ -35,9 +35,10 @@ jobs:
         if: always()
         uses: slackapi/slack-github-action@v2.1.1
         with:
-          channel-id: ${{ secrets.SLACK_CHANNEL_ID }}
+          method: chat.postMessage
           payload: |
             {
+              "channel": "${{ secrets.SLACK_CHANNEL_ID }}",
               "text": "🎭 Playwright Tests Completed",
               "blocks": [
                 {
